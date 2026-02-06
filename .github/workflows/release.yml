@@ -23,6 +23,12 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
       - name: Get Version
         id: get_version
         run: |
