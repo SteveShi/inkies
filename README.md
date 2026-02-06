@@ -32,8 +32,13 @@
    ```bash
    git clone https://github.com/steve/inkies.git
    ```
-2. Open `inkies.xcodeproj` in Xcode.
-3. Build and Run (**Cmd + R**).
+2. Generate the Xcode project:
+   ```bash
+   sh scripts/generate_project.sh
+   ```
+3. Open `inkies.xcodeproj` in Xcode.
+4. Build and Run (**Cmd + R**).
+
 
 ## 🛠️ Built With
 

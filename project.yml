@@ -1,0 +1,51 @@
+name: inkies
+options:
+  bundleIdPrefix: listentotherain
+packages:
+  WhatsNewKit:
+    url: https://github.com/SvenTiigi/WhatsNewKit
+    from: 2.2.1
+targets:
+  inkies:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.6"
+    sources:
+      - path: inkies
+    dependencies:
+      - package: WhatsNewKit
+    settings:
+      base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_STYLE: Automatic
+        COMBINE_HIDPI_IMAGES: YES
+        CURRENT_PROJECT_VERSION: 405
+        DEVELOPMENT_TEAM: W7A747LNTR
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: YES
+        ENABLE_PREVIEWS: YES
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: inkies/Info.plist
+        INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.productivity"
+        LD_RUNPATH_SEARCH_PATHS:
+          - $(inherited)
+          - "@executable_path/../Frameworks"
+        MARKETING_VERSION: 0.5
+        PRODUCT_BUNDLE_IDENTIFIER: listentotherain.inkies
+        REGISTER_APP_GROUPS: YES
+        STRING_CATALOG_GENERATE_SYMBOLS: YES
+        SWIFT_APPROACHABLE_CONCURRENCY: YES
+        SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+        SWIFT_EMIT_LOC_STRINGS: YES
+        SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY: YES
+        SWIFT_VERSION: 6.0
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+      debug:
+        SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+        GCC_OPTIMIZATION_LEVEL: 0
+        DEBUG_INFORMATION_FORMAT: dwarf
+      release:
+        SWIFT_COMPILATION_MODE: wholemodule
+        DEBUG_INFORMATION_FORMAT: "dwarf-with-dsym"
+        ENABLE_NS_ASSERTIONS: NO
