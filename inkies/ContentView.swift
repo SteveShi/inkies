@@ -415,6 +415,8 @@ struct ContentView: View {
 struct EditorView: View {
     @Bindable var item: Item
     @State private var previewContent: String = ""
+    @State private var lastCompiledContent: String = ""
+    @State private var debounceTask: Task<Void, Never>?
 
     var body: some View {
         HStack(spacing: 0) {
@@ -426,50 +428,73 @@ struct EditorView: View {
 
             Divider()
 
-            WebView(content: $previewContent)
+            WebView(content: $previewContent, lastCompiledContent: $lastCompiledContent)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
         }
         .padding(.top)
-        .task(id: item.content) {
-            let text = item.content
-
-            // Quick check for empty or JSON
-            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmed.isEmpty {
-                previewContent = ""
-                return
-            }
-            if trimmed.hasPrefix("{") {
-                previewContent = text
-                return
-            }
-
-            // Debounce for Ink compilation
-            try? await Task.sleep(nanoseconds: 600 * 1_000_000)  // 600ms
-
-            if Task.isCancelled { return }
-
-            do {
-                let json = try await InkCompiler.shared.compile(text)
-                if !Task.isCancelled {
-                    previewContent = json
-                }
-            } catch {
-                if !Task.isCancelled {
-                    previewContent = "COMPILER_ERROR: \(error.localizedDescription)"
-                }
-            }
+        .onChange(of: item.content) { oldValue, newValue in
+            handleContentChange(newValue)
         }
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
         #endif
+    }
+
+    private func handleContentChange(_ content: String) {
+        debounceTask?.cancel()
+
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if trimmed.isEmpty {
+            previewContent = ""
+            lastCompiledContent = ""
+            return
+        }
+        
+        if trimmed.hasPrefix("{") {
+            previewContent = content
+            lastCompiledContent = content
+            return
+        }
+
+        debounceTask = Task {
+            try? await Task.sleep(nanoseconds: 400 * 1_000_000)
+            
+            if Task.isCancelled { return }
+            
+            await MainActor.run {
+                compileContent(content)
+            }
+        }
+    }
+
+    private func compileContent(_ content: String) {
+        Task {
+            do {
+                let json = try await InkCompiler.shared.compile(content)
+                if !Task.isCancelled {
+                    await MainActor.run {
+                        previewContent = json
+                        lastCompiledContent = content
+                    }
+                }
+            } catch {
+                if !Task.isCancelled {
+                    await MainActor.run {
+                        previewContent = "COMPILER_ERROR: \(error.localizedDescription)"
+                        lastCompiledContent = content
+                    }
+                }
+            }
+        }
     }
 }
 
 #if os(macOS)
     struct WebView: NSViewRepresentable {
         @Binding var content: String
+        @Binding var lastCompiledContent: String
 
         func makeNSView(context: Context) -> WKWebView {
             let webView = WKWebView()
@@ -477,19 +502,21 @@ struct EditorView: View {
 
             // Enable developer tools for Safari debugging
             webView.configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
+            
+            // Add message handler for communication
+            webView.configuration.userContentController.add(context.coordinator, name: "inkiesBridge")
+            
             return webView
         }
 
         @AppStorage("appTheme") private var appTheme: AppTheme = .light
 
         func updateNSView(_ nsView: WKWebView, context: Context) {
-            print("WebView: updateNSView called. Content length: \(content.count)")
-            let html = generateHTML(for: content, theme: appTheme)
-
             if context.coordinator.lastContent != content {
-                print("WebView: Loading new HTML...")
+                let html = generateHTML(for: content, theme: appTheme, enableIncrementalUpdate: true)
                 nsView.loadHTMLString(html, baseURL: Bundle.main.bundleURL)
                 context.coordinator.lastContent = content
+                context.coordinator.isFirstLoad = false
             }
         }
 
@@ -497,33 +524,50 @@ struct EditorView: View {
             Coordinator(self)
         }
 
-        class Coordinator: NSObject, WKNavigationDelegate {
+        class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
             var parent: WebView
             var lastContent: String = ""
+            var isFirstLoad: Bool = true
 
             init(_ parent: WebView) {
                 self.parent = parent
+            }
+
+            func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+                if message.name == "inkiesBridge" {
+                    if let body = message.body as? [String: Any],
+                       let action = body["action"] as? String {
+                        if action == "ready" {
+                            self.isFirstLoad = false
+                        }
+                    }
+                }
             }
         }
     }
 #else
     struct WebView: UIViewRepresentable {
         @Binding var content: String
+        @Binding var lastCompiledContent: String
 
         func makeUIView(context: Context) -> WKWebView {
             let webView = WKWebView()
             webView.navigationDelegate = context.coordinator
+            
+            // Add message handler for communication
+            webView.configuration.userContentController.add(context.coordinator, name: "inkiesBridge")
+            
             return webView
         }
 
         @AppStorage("appTheme") private var appTheme: AppTheme = .light
 
         func updateUIView(_ uiView: WKWebView, context: Context) {
-            print("WebView: updateUIView called.")
-            let html = generateHTML(for: content, theme: appTheme)
             if context.coordinator.lastContent != content {
+                let html = generateHTML(for: content, theme: appTheme, enableIncrementalUpdate: true)
                 uiView.loadHTMLString(html, baseURL: Bundle.main.bundleURL)
                 context.coordinator.lastContent = content
+                context.coordinator.isFirstLoad = false
             }
         }
 
@@ -531,12 +575,24 @@ struct EditorView: View {
             Coordinator(self)
         }
 
-        class Coordinator: NSObject, WKNavigationDelegate {
+        class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
             var parent: WebView
             var lastContent: String = ""
+            var isFirstLoad: Bool = true
 
             init(_ parent: WebView) {
                 self.parent = parent
+            }
+
+            func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+                if message.name == "inkiesBridge" {
+                    if let body = message.body as? [String: Any],
+                       let action = body["action"] as? String {
+                        if action == "ready" {
+                            self.isFirstLoad = false
+                        }
+                    }
+                }
             }
         }
     }
@@ -558,13 +614,17 @@ private func getInkScript() -> String {
         #"<script src="https://unpkg.com/inkjs/dist/ink.js"></script><script>console.warn('INKIES DEBUG: local ink.min.js NOT found in bundle, using CDN');</script>"#
 }
 
-private func generateHTML(for inkContext: String, theme: AppTheme) -> String {
+private func generateHTML(for inkContext: String, theme: AppTheme, enableIncrementalUpdate: Bool = false) -> String {
     let safeContent = inkContext.replacingOccurrences(of: "\\", with: "\\\\")
         .replacingOccurrences(of: "\"", with: "\\\"")
         .replacingOccurrences(of: "\n", with: "\\n")
         .replacingOccurrences(of: "\r", with: "")
 
     let inkScriptTag = getInkScript()
+
+    let textColor = theme == .dark ? "#ccc" : "#333"
+    let bgColor = theme == .dark ? "#1e1e1e" : "#fdfdfd"
+    let linkColor = theme == .dark ? "#64b5f6" : "#007aff"
 
     return """
         <!doctype html>
@@ -579,12 +639,12 @@ private func generateHTML(for inkContext: String, theme: AppTheme) -> String {
                     font-family: "Georgia", serif; 
                     padding: 40px 10%; 
                     line-height: 1.8; 
-                    color: \(theme == .dark ? "#ccc" : "#333");
+                    color: \(textColor);
                     max-width: 800px;
                     margin: 0 auto;
-                    background-color: \(theme == .dark ? "#1e1e1e" : "#fdfdfd");
+                    background-color: \(bgColor);
                 }
-                a { color: \(theme == .dark ? "#64b5f6" : "#007aff"); }
+                a { color: \(linkColor); }
                 .choice { 
                     cursor: pointer; 
                     color: #007aff; 
@@ -632,87 +692,117 @@ private func generateHTML(for inkContext: String, theme: AppTheme) -> String {
             </div>
 
             <script>
-                function log(msg) {
-                    var d = document.getElementById('debug');
-                    d.style.display = 'block';
-                    var l = document.getElementById('debug-log');
-                    l.innerHTML += "<div>" + msg + "</div>";
-                    console.log(msg);
-                }
-
-                window.onerror = function(msg, url, line) {
-                    log("JS Error: " + msg + " (Line " + line + ")");
-                    return false;
-                };
-
-                var storyContent = "\(safeContent)";
-                
-                try {
-                    if (typeof inkjs === 'undefined') {
-                        log("CRITICAL: inkjs library is missing! Please make sure 'ink.min.js' is added to the Xcode Target, or you have internet connection.");
+                (function() {
+                    var storyContent = "\(safeContent)";
+                    var story = null;
+                    var storyContainer = document.getElementById('story');
+                    
+                    function log(msg) {
+                        var d = document.getElementById('debug');
+                        d.style.display = 'block';
+                        var l = document.getElementById('debug-log');
+                        l.innerHTML += "<div>" + msg + "</div>";
+                        console.log(msg);
                     }
 
-                    if (storyContent.trim().length === 0) {
-                         document.getElementById('story').innerHTML = "<p><em>Start writing...</em></p>";
-                    } else if (storyContent.trim().startsWith('{')) {
-                        // JSON Mode (Compiled)
+                    window.onerror = function(msg, url, line) {
+                        log("JS Error: " + msg + " (Line " + line + ")");
+                        return false;
+                    };
+
+                    function clearStory() {
+                        storyContainer.innerHTML = '';
+                    }
+
+                    function renderParagraph(text) {
+                        var p = document.createElement('p');
+                        p.innerText = text;
+                        storyContainer.appendChild(p);
+                    }
+
+                    function renderChoices(choices) {
+                        choices.forEach(function(choice) {
+                            var choiceDiv = document.createElement('div');
+                            choiceDiv.classList.add('choice');
+                            choiceDiv.innerText = choice.text;
+                            choiceDiv.onclick = function() {
+                                story.ChooseChoiceIndex(choice.index);
+                                var existingChoices = storyContainer.querySelectorAll('.choice');
+                                existingChoices.forEach(c => c.remove());
+                                continueStory();
+                            };
+                            storyContainer.appendChild(choiceDiv);
+                        });
+                    }
+
+                    function renderEnd() {
+                        var endP = document.createElement('p');
+                        endP.innerHTML = "<em class='end'>--- End of Story ---</em>";
+                        storyContainer.appendChild(endP);
+                    }
+
+                    function continueStory() {
+                        while(story && story.canContinue) {
+                            var paragraph = story.Continue();
+                            renderParagraph(paragraph);
+                        }
+                        
+                        if (story && story.currentChoices.length > 0) {
+                            renderChoices(story.currentChoices);
+                        } else {
+                            renderEnd();
+                        }
+                    }
+
+                    function loadStory(jsonContent) {
                         try {
-                            var jsonContent = JSON.parse(storyContent);
-                            var story = new inkjs.Story(jsonContent);
-                            var storyContainer = document.getElementById('story');
-                            
-                            function continueStory() {
-                                while(story.canContinue) {
-                                    var paragraph = story.Continue();
-                                    var p = document.createElement('p');
-                                    p.innerText = paragraph;
-                                    storyContainer.appendChild(p);
-                                }
-                                
-                                if (story.currentChoices.length > 0) {
-                                    story.currentChoices.forEach(function(choice) {
-                                        var choiceDiv = document.createElement('div');
-                                        choiceDiv.classList.add('choice');
-                                        choiceDiv.innerText = choice.text;
-                                        choiceDiv.onclick = function() {
-                                            story.ChooseChoiceIndex(choice.index);
-                                            var choices = document.querySelectorAll('.choice');
-                                            choices.forEach(c => c.remove());
-                                            continueStory();
-                                        };
-                                        storyContainer.appendChild(choiceDiv);
-                                    });
-                                } else {
-                                    var endP = document.createElement('p');
-                                    endP.innerHTML = "<em class='end'>--- End of Story ---</em>";
-                                    storyContainer.appendChild(endP);
-                                }
-                            }
-                            
+                            clearStory();
+                            story = new inkjs.Story(jsonContent);
                             continueStory();
                         } catch(jsonErr) {
-                             log("JSON Parse/Run Error: " + jsonErr.message);
+                            log("JSON Parse/Run Error: " + jsonErr.message);
                         }
-                    } else if (storyContent.startsWith('COMPILER_ERROR:')) {
-                        // Compiler Error Mode
-                        var errorMsg = storyContent.substring('COMPILER_ERROR:'.length);
-                        document.getElementById('story').innerHTML = `
+                    }
+
+                    function showError(errorMsg) {
+                        clearStory();
+                        storyContainer.innerHTML = `
                             <div style="background:#fee; color:#c00; padding:15px; border-left:4px solid #c00; border-radius:4px;">
                                 <strong>Compilation Failed:</strong><br/>
                                 <pre style="background:none; padding:0; margin-top:8px; white-space:pre-wrap;">${errorMsg}</pre>
                             </div>
                         `;
-                    } else {
-                        // Raw Ink Mode (Instruction)
-                        document.getElementById('story').innerHTML = `
-                            <p><strong>Raw Ink Code Detected</strong></p>
-                            <p>Compiling...</p>
-                        `;
                     }
-                    
-                } catch(e) {
-                    log("Setup Error: " + e.message);
-                }
+
+                    function showEmpty() {
+                        clearStory();
+                        storyContainer.innerHTML = "<p><em>Start writing...</em></p>";
+                    }
+
+                    try {
+                        if (typeof inkjs === 'undefined') {
+                            log("CRITICAL: inkjs library is missing! Please make sure 'ink.min.js' is added to the Xcode Target, or you have internet connection.");
+                        }
+
+                        if (storyContent.trim().length === 0) {
+                            showEmpty();
+                        } else if (storyContent.trim().startsWith('{')) {
+                            var jsonContent = JSON.parse(storyContent);
+                            loadStory(jsonContent);
+                        } else if (storyContent.startsWith('COMPILER_ERROR:')) {
+                            var errorMsg = storyContent.substring('COMPILER_ERROR:'.length);
+                            showError(errorMsg);
+                        } else {
+                            storyContainer.innerHTML = `
+                                <p><strong>Raw Ink Code Detected</strong></p>
+                                <p>Compiling...</p>
+                            `;
+                        }
+                        
+                    } catch(e) {
+                        log("Setup Error: " + e.message);
+                    }
+                })();
             </script>
         </body>
         </html>
@@ -760,6 +850,71 @@ struct InkExportDocument: FileDocument {
     }
 }
 
+// MARK: - Compilation Cache
+actor CompilationCache {
+    static let shared = CompilationCache()
+    
+    private var cache: [String: CacheEntry] = [:]
+    private let maxCacheSize = 50
+    private var accessOrder: [String] = []
+    
+    struct CacheEntry {
+        let inkCode: String
+        let compiledResult: String
+        let timestamp: Date
+        let hash: String
+    }
+    
+    func getCachedResult(for inkCode: String) -> String? {
+        let codeHash = hashString(inkCode)
+        
+        if let entry = cache[codeHash], entry.inkCode == inkCode {
+            updateAccessOrder(for: codeHash)
+            return entry.compiledResult
+        }
+        return nil
+    }
+    
+    func cacheResult(inkCode: String, compiledResult: String) {
+        let codeHash = hashString(inkCode)
+        
+        if cache.count >= maxCacheSize {
+            removeOldestEntry()
+        }
+        
+        let entry = CacheEntry(
+            inkCode: inkCode,
+            compiledResult: compiledResult,
+            timestamp: Date(),
+            hash: codeHash
+        )
+        
+        cache[codeHash] = entry
+        updateAccessOrder(for: codeHash)
+    }
+    
+    func clearCache() {
+        cache.removeAll()
+        accessOrder.removeAll()
+    }
+    
+    private func hashString(_ string: String) -> String {
+        let data = Data(string.utf8)
+        return data.base64EncodedString()
+    }
+    
+    private func updateAccessOrder(for hash: String) {
+        accessOrder.removeAll { $0 == hash }
+        accessOrder.append(hash)
+    }
+    
+    private func removeOldestEntry() {
+        guard !accessOrder.isEmpty else { return }
+        let oldestHash = accessOrder.removeFirst()
+        cache.removeValue(forKey: oldestHash)
+    }
+}
+
 // MARK: - Ink Compiler Class
 actor InkCompiler {
     static let shared = InkCompiler()
@@ -769,6 +924,9 @@ actor InkCompiler {
         "/opt/homebrew/bin/inklecate",
         "/usr/local/bin/inklecate",
     ]
+    
+    private var isCompiling = false
+    private var pendingCompilation: Task<String, Error>?
 
     func findInklecate() -> String? {
         // 1. Check App Bundle (Preferred for standalone)
@@ -786,6 +944,32 @@ actor InkCompiler {
     }
 
     func compile(_ inkCode: String) async throws -> String {
+        // Check cache first
+        if let cachedResult = await CompilationCache.shared.getCachedResult(for: inkCode) {
+            return cachedResult
+        }
+        
+        // Cancel any pending compilation
+        pendingCompilation?.cancel()
+        
+        // Create new compilation task
+        let compilationTask = Task<String, Error> {
+            return try await performCompilation(inkCode)
+        }
+        
+        pendingCompilation = compilationTask
+        
+        do {
+            let result = try await compilationTask.value
+            // Cache the successful result
+            await CompilationCache.shared.cacheResult(inkCode: inkCode, compiledResult: result)
+            return result
+        } catch {
+            throw error
+        }
+    }
+    
+    private func performCompilation(_ inkCode: String) async throws -> String {
         guard let compilerPath = findInklecate() else {
             throw NSError(
                 domain: "InkCompiler", code: 404,
