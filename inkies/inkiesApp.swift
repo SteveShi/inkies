@@ -66,7 +66,10 @@ struct inkiesApp: App {
                                                     "Flicker-free incremental updates and faster compilation."
                                             ))
                                     ),
-                                ]
+                                ],
+                                primaryAction: .init(
+                                    title: WhatsNew.Text(String(localized: "Continue"))
+                                )
                             ),
                             WhatsNew(
                                 version: "0.5.0",
@@ -81,7 +84,10 @@ struct inkiesApp: App {
                                                 localized:
                                                     "Export your stories to JSON or Web (HTML)."))
                                 )
-                            ]
+                                ],
+                                primaryAction: .init(
+                                    title: WhatsNew.Text(String(localized: "Continue"))
+                                )
                         )
                     ]
                 ))
@@ -198,7 +204,7 @@ struct inkiesApp: App {
             }
 
             CommandGroup(replacing: .help) {
-                Button("What's New in Inkies") {
+                Button(String(localized: "What's New in Inkies")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("ShowWhatsNew"), object: nil)
                 }

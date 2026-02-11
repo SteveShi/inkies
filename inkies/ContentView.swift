@@ -111,20 +111,39 @@ struct ContentView: View {
         {
             _ in
             manualWhatsNew = WhatsNew(
-                version: "0.5.0",
-                title: "What's New in Inkies",
+                version: "0.6.0",
+                title: WhatsNew.Title(
+                    text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
                 features: [
                     .init(
-                        image: .init(systemName: "square.and.arrow.up"),
-                        title: "Export Options",
-                        subtitle: "Export your stories to JSON or Web (HTML)."
+                        image: .init(systemName: "highlighter"),
+                        title: WhatsNew.Text(String(localized: "Real-time Highlighting")),
+                        subtitle: WhatsNew.Text(
+                            String(
+                                localized:
+                                    "Native syntax highlighting for Ink script while you type."))
                     ),
                     .init(
-                        image: .init(systemName: "pencil"),
-                        title: "Syntax Highlighting",
-                        subtitle: "Improved editor experience."
+                        image: .init(systemName: "arrow.uturn.backward.circle"),
+                        title: WhatsNew.Text(String(localized: "Preview Controls")),
+                        subtitle: WhatsNew.Text(
+                            String(
+                                localized:
+                                    "Undo choices and restart your story directly from the toolbar."
+                            ))
                     ),
-                ]
+                    .init(
+                        image: .init(systemName: "gauge.with.needle"),
+                        title: WhatsNew.Text(String(localized: "Performance Boost")),
+                        subtitle: WhatsNew.Text(
+                            String(
+                                localized:
+                                    "Flicker-free incremental updates and faster compilation."))
+                    )
+                ],
+                primaryAction: .init(
+                    title: WhatsNew.Text(String(localized: "Continue"))
+                )
             )
         }
             .sheet(item: $manualWhatsNew) { whatsNew in
@@ -200,6 +219,7 @@ struct ContentView: View {
         .toolbar {
             mainToolbar
         }
+        .toolbarBackground(.visible, for: .windowToolbar)
     }
 
     // MARK: - Subviews
@@ -242,6 +262,7 @@ struct ContentView: View {
     private var detailView: some View {
         if let item = selection {
             EditorView(item: item)
+                .id(item.id)  // Force recreation when item changes
                 .onReceive(
                     NotificationCenter.default.publisher(for: Notification.Name("ExportInk"))
                 ) { _ in
@@ -453,14 +474,14 @@ struct EditorView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button(action: undoStory) {
-                    Label("Undo", systemImage: "arrow.uturn.backward")
+                    Label(String(localized: "Undo"), systemImage: "arrow.uturn.backward")
                 }
-                .help("Return to previous branch")
+                .help(String(localized: "Return to previous branch"))
 
                 Button(action: restartStory) {
-                    Label("Restart", systemImage: "arrow.counterclockwise")
+                    Label(String(localized: "Restart"), systemImage: "arrow.counterclockwise")
                 }
-                .help("Restart story")
+                .help(String(localized: "Restart story"))
             }
         }
         .onChange(of: item.content) { oldValue, newValue in

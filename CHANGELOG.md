@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.6.1 (2026-02-11)
+
+### 🐞 Bug Fixes
+- **UI Glitches**: Fixed toolbar background disappearing on resize and preview content persistence issues.
+- **Localization**: Added missing Chinese translations for "Continue" button and "What's New" content.
+
 ## 0.6.0 (2026-02-11)
 
 ### 🆕 New Features
