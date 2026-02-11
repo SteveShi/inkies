@@ -198,7 +198,7 @@ struct inkiesApp: App {
             }
 
             CommandGroup(replacing: .help) {
-                Button("What's New in Inkies") {
+                Button(String(localized: "What's New in Inkies")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("ShowWhatsNew"), object: nil)
                 }

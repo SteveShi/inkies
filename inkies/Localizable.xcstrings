@@ -50,6 +50,10 @@
     "Version 0.5.0" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "版本 0.5.0" } } } },
     "Export Options" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "导出选项" } } } },
     "Export your stories to JSON or Web (HTML)." : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "将你的故事导出为 JSON 或 Web (HTML) 格式。" } } } },
+    "Undo" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "撤销" } } } },
+    "Restart" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新开始" } } } },
+    "Return to previous branch" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "返回上一分支" } } } },
+    "Restart story" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新开始故事" } } } },
 
     "Basic structure" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "基本结构" } } } },
     "Knot (main section)" : { "localizations" : { "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "结(主要章节)" } } } },
