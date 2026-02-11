@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.6.0 (2026-02-11)
+
+### 🆕 New Features
+- **Real-time Syntax Highlighting**: Added a professional native editor with live highlighting for Ink keywords, choices, tags, and logic.
+- **Preview Controls**: Relocated "Undo" and "Restart" functionality to the main toolbar for easier story navigation and testing.
+- **What's New Gallery**: Updated the onboarding experience to showcase the latest features.
+
+### 🚀 Performance & UI
+- **Flicker-free Rendering**: Implemented a native bridge for incremental WebView updates, ensuring the story state persists during editing.
+- **Improved Responsiveness**: Reduced compilation latency and optimized the background build process.
+- **Clean Interface**: Removed the debug console and unified the background colors for a premium appearance.
+
 ## 0.5.1 (2026-02-11)
 
 ### 🚀 Performance Optimizations

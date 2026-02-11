@@ -8,8 +8,8 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
     var localizedName: String {
         switch self {
-        case .light: return L10n.lightMode
-        case .dark: return L10n.darkMode
+        case .light: return String(localized: "Light Mode")
+        case .dark: return String(localized: "Dark Mode")
         }
     }
 

@@ -33,18 +33,53 @@ struct inkiesApp: App {
                 .environment(\.whatsNew, WhatsNewEnvironment(
                     whatsNewCollection: [
                         WhatsNew(
-                            version: "0.5.0",
-                            title: "What's New in Inkies",
+                                version: "0.6.0",
+                                title: WhatsNew.Title(
+                                    text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
                             features: [
                                 .init(
-                                    image: .init(systemName: "square.and.arrow.up"),
-                                    title: "Export Options",
-                                    subtitle: "Export your stories to JSON or Web (HTML)."
+                                        image: .init(systemName: "highlighter"),
+                                        title: WhatsNew.Text(
+                                            String(localized: "Real-time Highlighting")),
+                                        subtitle: WhatsNew.Text(
+                                            String(
+                                                localized:
+                                                    "Native syntax highlighting for Ink script while you type."
+                                            ))
                                 ),
                                 .init(
-                                    image: .init(systemName: "pencil"),
-                                    title: "Syntax Highlighting",
-                                    subtitle: "Improved editor experience."
+                                        image: .init(systemName: "arrow.uturn.backward.circle"),
+                                        title: WhatsNew.Text(String(localized: "Preview Controls")),
+                                        subtitle: WhatsNew.Text(
+                                            String(
+                                                localized:
+                                                    "Undo choices and restart your story directly from the toolbar."
+                                            ))
+                                    ),
+                                    .init(
+                                        image: .init(systemName: "gauge.with.needle"),
+                                        title: WhatsNew.Text(
+                                            String(localized: "Performance Boost")),
+                                        subtitle: WhatsNew.Text(
+                                            String(
+                                                localized:
+                                                    "Flicker-free incremental updates and faster compilation."
+                                            ))
+                                    ),
+                                ]
+                            ),
+                            WhatsNew(
+                                version: "0.5.0",
+                                title: WhatsNew.Title(
+                                    text: WhatsNew.Text(String(localized: "Version 0.5.0"))),
+                                features: [
+                                    .init(
+                                        image: .init(systemName: "square.and.arrow.up"),
+                                        title: WhatsNew.Text(String(localized: "Export Options")),
+                                        subtitle: WhatsNew.Text(
+                                            String(
+                                                localized:
+                                                    "Export your stories to JSON or Web (HTML)."))
                                 )
                             ]
                         )
@@ -55,7 +90,7 @@ struct inkiesApp: App {
         .modelContainer(sharedModelContainer)
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button(L10n.newInkFile) {
+                Button(String(localized: "New Ink File")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("AddItem"), object: nil)
                 }
@@ -63,13 +98,13 @@ struct inkiesApp: App {
             }
 
             CommandGroup(replacing: .saveItem) {
-                Button(L10n.saveProject) {
+                Button(String(localized: "Save Project")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("SaveProject"), object: nil)
                 }
                 .keyboardShortcut("s", modifiers: .command)
 
-                Button(L10n.close) {
+                Button(String(localized: "Close")) {
                     if let window = NSApplication.shared.keyWindow {
                         window.close()
                     }
@@ -78,13 +113,13 @@ struct inkiesApp: App {
             }
 
             CommandGroup(after: .toolbar) {
-                Button(L10n.search) {
+                Button(String(localized: "Search")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("SearchItems"), object: nil)
                 }
                 .keyboardShortcut("f", modifiers: .command)
 
-                Picker(L10n.theme, selection: $appTheme) {
+                Picker(String(localized: "Theme"), selection: $appTheme) {
                     ForEach(AppTheme.allCases) { theme in
                         Text(theme.localizedName).tag(theme)
                     }
@@ -93,19 +128,19 @@ struct inkiesApp: App {
 
             CommandGroup(replacing: .importExport) {
                 Section {
-                    Button(L10n.exportInk) {
+                    Button(String(localized: "Export Ink (.ink)")) {
                         NotificationCenter.default.post(
                             name: Notification.Name("ExportInk"), object: nil)
                     }
                     .keyboardShortcut("e", modifiers: .command)
 
-                    Button(L10n.exportJson) {
+                    Button(String(localized: "Export JSON (.json)")) {
                         NotificationCenter.default.post(
                             name: Notification.Name("ExportJSON"), object: nil)
                     }
                     .keyboardShortcut("j", modifiers: .command)
 
-                    Button(L10n.exportWeb) {
+                    Button(String(localized: "Export Web (.html)")) {
                         NotificationCenter.default.post(
                             name: Notification.Name("ExportWeb"), object: nil)
                     }
@@ -114,31 +149,31 @@ struct inkiesApp: App {
             }
 
             // MARK: - Story Menu
-            CommandMenu(L10n.storyMenu) {
-                Button(L10n.gotoAnything) {
+            CommandMenu(String(localized: "Story")) {
+                Button(String(localized: "Go to anything...")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("GotoAnything"), object: nil)
                 }
                 .keyboardShortcut("p", modifiers: .command)
 
-                Button(L10n.nextIssue) {
+                Button(String(localized: "Next Issue")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("NextIssue"), object: nil)
                 }
                 .keyboardShortcut(".", modifiers: .command)
 
-                Button(L10n.addWatchExpression) {
+                Button(String(localized: "Add watch expression...")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("AddWatchExpression"), object: nil)
                 }
 
                 Divider()
 
-                Toggle(L10n.tagsVisible, isOn: .constant(true))
+                Toggle(String(localized: "Tags visible"), isOn: .constant(true))
 
                 Divider()
 
-                Button(L10n.wordCount) {
+                Button(String(localized: "Word count and more")) {
                     NotificationCenter.default.post(
                         name: Notification.Name("ShowWordCount"), object: nil)
                 }
@@ -146,7 +181,7 @@ struct inkiesApp: App {
             }
 
             // MARK: - Ink Menu
-            CommandMenu(L10n.inkMenu) {
+            CommandMenu("Ink") {
                 ForEach(InkSnippets.allCategories.indices, id: \.self) { index in
                     let category = InkSnippets.allCategories[index]
                     Menu(category.localizedName) {

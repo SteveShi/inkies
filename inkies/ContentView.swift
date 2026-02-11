@@ -13,7 +13,6 @@ struct ContentView: View {
     // WhatsNew State
     @State private var manualWhatsNew: WhatsNew?
 
-
     private var filteredItems: [Item] {
         if searchText.isEmpty {
             return items
@@ -51,28 +50,33 @@ struct ContentView: View {
 
     var body: some View {
         navigationSplitView
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("AddItem"))) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("AddItem"))) {
+                _ in
                 addItem()
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SaveProject"))) {
-                _ in
-                try? modelContext.save()
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SaveProject")))
+        {
+            _ in
+            try? modelContext.save()
+        }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SearchItems")))
+        {
+            _ in
+            withAnimation {
+                isSearchMode = true
+                isSearchFieldFocused = true
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SearchItems"))) {
-                _ in
-                withAnimation {
-                    isSearchMode = true
-                    isSearchFieldFocused = true
-                }
+        }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("GotoAnything")))
+        {
+            _ in
+            withAnimation {
+                isSearchMode = true
+                isSearchFieldFocused = true
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("GotoAnything"))) {
+        }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("NextIssue"))) {
                 _ in
-                withAnimation {
-                    isSearchMode = true
-                    isSearchFieldFocused = true
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("NextIssue"))) { _ in
                 if let item = selection {
                     Task { await refreshPreview(for: item) }
                 }
@@ -86,38 +90,43 @@ struct ContentView: View {
                 _ in
                 tagsVisible.toggle()
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowWordCount"))) {
+            .onReceive(
+                NotificationCenter.default.publisher(for: Notification.Name("ShowWordCount"))
+            ) {
                 _ in
                 if let item = selection {
                     wordCountStats = calculateStats(for: item.content)
                     showingWordCount = true
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("InsertSnippet"))) {
+            .onReceive(
+                NotificationCenter.default.publisher(for: Notification.Name("InsertSnippet"))
+            ) {
                 notification in
                 if let snippet = notification.object as? String, let item = selection {
                     item.content += snippet
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowWhatsNew"))) {
-                _ in
-                manualWhatsNew = WhatsNew(
-                    version: "0.5.0",
-                    title: "What's New in Inkies",
-                    features: [
-                        .init(
-                            image: .init(systemName: "square.and.arrow.up"),
-                            title: "Export Options",
-                            subtitle: "Export your stories to JSON or Web (HTML)."
-                        ),
-                        .init(
-                            image: .init(systemName: "pencil"),
-                            title: "Syntax Highlighting",
-                            subtitle: "Improved editor experience."
-                        ),
-                    ]
-                )
-            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowWhatsNew")))
+        {
+            _ in
+            manualWhatsNew = WhatsNew(
+                version: "0.5.0",
+                title: "What's New in Inkies",
+                features: [
+                    .init(
+                        image: .init(systemName: "square.and.arrow.up"),
+                        title: "Export Options",
+                        subtitle: "Export your stories to JSON or Web (HTML)."
+                    ),
+                    .init(
+                        image: .init(systemName: "pencil"),
+                        title: "Syntax Highlighting",
+                        subtitle: "Improved editor experience."
+                    ),
+                ]
+            )
+        }
             .sheet(item: $manualWhatsNew) { whatsNew in
                 WhatsNewView(whatsNew: whatsNew)
             }
@@ -136,29 +145,30 @@ struct ContentView: View {
             ) { result in
                 handleExportResult(result)
             }
-            .alert(L10n.exportFailed, isPresented: $showingExportError) {
-                Button("OK") {}
+            .alert(String(localized: "Export Failed"), isPresented: $showingExportError) {
+                Button(String(localized: "OK")) {}
             } message: {
                 Text(exportErrorMessage)
             }
-            .alert(L10n.wordCountTitle, isPresented: $showingWordCount) {
-                Button(L10n.ok) {}
+            .alert(String(localized: "Document Statistics"), isPresented: $showingWordCount) {
+                Button(String(localized: "OK")) {}
             } message: {
                 Text(
                     """
-                    \(L10n.words): \(wordCountStats.words)
-                    \(L10n.characters): \(wordCountStats.characters)
-                    \(L10n.lines): \(wordCountStats.lines)
-                    \(L10n.knots): \(wordCountStats.knots)
+                    \(String(localized: "Words")): \(wordCountStats.words)
+                    \(String(localized: "Characters")): \(wordCountStats.characters)
+                    \(String(localized: "Lines")): \(wordCountStats.lines)
+                    \(String(localized: "Knots")): \(wordCountStats.knots)
                     """)
             }
-            .alert(L10n.watchExpressionTitle, isPresented: $showingWatchExpression) {
-                TextField(L10n.watchExpressionPrompt, text: $watchExpression)
-                Button(L10n.ok) {
+            .alert(String(localized: "Add Watch Expression"), isPresented: $showingWatchExpression)
+        {
+            TextField(String(localized: "Enter variable name to watch"), text: $watchExpression)
+            Button(String(localized: "OK")) {
                     // In full implementation, this would add to a watch list
                     watchExpression = ""
                 }
-                Button(L10n.cancel, role: .cancel) {
+            Button(String(localized: "Cancel"), role: .cancel) {
                     watchExpression = ""
                 }
             }
@@ -171,18 +181,18 @@ struct ContentView: View {
                 .toolbar {
                     ToolbarItem(placement: .navigation) {
                         Button(action: addItem) {
-                            Label(L10n.addItem, systemImage: "plus")
+                            Label(String(localized: "Add Item"), systemImage: "plus")
                         }
                     }
                 }
-                .alert(L10n.renameTitle, isPresented: $showingRenameAlert) {
-                    TextField(L10n.newTitle, text: $renameTitle)
-                    Button(L10n.rename) {
+                .alert(String(localized: "Rename Document"), isPresented: $showingRenameAlert) {
+                    TextField(String(localized: "New Title"), text: $renameTitle)
+                    Button(String(localized: "Rename")) {
                         if let item = itemToRename {
                             item.title = renameTitle
                         }
                     }
-                    Button(L10n.cancel, role: .cancel) {}
+                    Button(String(localized: "Cancel"), role: .cancel) {}
                 }
         } detail: {
             detailView
@@ -192,7 +202,6 @@ struct ContentView: View {
         }
     }
 
-
     // MARK: - Subviews
 
     @ViewBuilder
@@ -200,22 +209,26 @@ struct ContentView: View {
         List(selection: $selection) {
             ForEach(filteredItems) { item in
                 NavigationLink(value: item) {
-                    Text(item.title.isEmpty ? L10n.untitled : item.title)
+                    Text(item.title.isEmpty ? String(localized: "Untitled") : item.title)
                 }
                 .contextMenu {
-                    Button(L10n.rename) {
+                    Button(String(localized: "Rename")) {
                         itemToRename = item
                         renameTitle = item.title
                         showingRenameAlert = true
                     }
-                    Button(L10n.delete, role: .destructive) {
+                    Button(String(localized: "Delete"), role: .destructive) {
                         modelContext.delete(item)
                     }
                     Divider()
-                    Menu(L10n.exportMenu) {
-                        Button(L10n.exportInk) { prepareExportInk(item) }
-                        Button(L10n.exportJson) { Task { await prepareExportJson(item) } }
-                        Button(L10n.exportWeb) { Task { await prepareExportWeb(item) } }
+                    Menu(String(localized: "Export...")) {
+                        Button(String(localized: "Export Ink (.ink)")) { prepareExportInk(item) }
+                        Button(String(localized: "Export JSON (.json)")) {
+                            Task { await prepareExportJson(item) }
+                        }
+                        Button(String(localized: "Export Web (.html)")) {
+                            Task { await prepareExportWeb(item) }
+                        }
                     }
                 }
             }
@@ -245,7 +258,7 @@ struct ContentView: View {
                     Task { await prepareExportWeb(item) }
                 }
         } else {
-            Text(L10n.selectDoc)
+            Text(String(localized: "Select a document"))
                 .foregroundColor(.secondary)
         }
     }
@@ -258,7 +271,7 @@ struct ContentView: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.secondary)
-                        TextField(L10n.search, text: $searchText)
+                        TextField(String(localized: "Search"), text: $searchText)
                             .textFieldStyle(.plain)
                             .focused($isSearchFieldFocused)
                             .frame(width: 200)
@@ -276,7 +289,7 @@ struct ContentView: View {
                     .background(Color(.unemphasizedSelectedTextBackgroundColor).opacity(0.1))
                     .cornerRadius(8)
 
-                    Button(L10n.cancel) {
+                    Button(String(localized: "Cancel")) {
                         withAnimation {
                             isSearchMode = false
                             searchText = ""
@@ -285,15 +298,18 @@ struct ContentView: View {
                 } else {
                     if selection != nil {
                         Menu {
-                            Button(L10n.exportInk) { prepareExportInk(selection!) }
-                            Button(L10n.exportJson) {
+                            Button(String(localized: "Export Ink (.ink)")) {
+                                prepareExportInk(selection!)
+                            }
+                            Button(String(localized: "Export JSON (.json)")) {
                                 Task { await prepareExportJson(selection!) }
                             }
-                            Button(L10n.exportWeb) {
+                            Button(String(localized: "Export Web (.html)")) {
                                 Task { await prepareExportWeb(selection!) }
                             }
                         } label: {
-                            Label(L10n.exportMenu, systemImage: "square.and.arrow.up")
+                            Label(
+                                String(localized: "Export..."), systemImage: "square.and.arrow.up")
                         }
                     }
 
@@ -303,7 +319,7 @@ struct ContentView: View {
                             isSearchFieldFocused = true
                         }
                     }) {
-                        Label(L10n.search, systemImage: "magnifyingglass")
+                        Label(String(localized: "Search"), systemImage: "magnifyingglass")
                     }
                 }
             }
@@ -327,7 +343,8 @@ struct ContentView: View {
             showingExport = true
         } catch {
             print("Export Failed: \(error.localizedDescription)")
-            exportErrorMessage = "\(L10n.compilerError)\n\(error.localizedDescription)"
+            exportErrorMessage =
+                "\(String(localized: "Compiler Error: inklecate might be missing."))\n\(error.localizedDescription)"
             showingExportError = true
         }
         isExporting = false
@@ -344,7 +361,8 @@ struct ContentView: View {
             showingExport = true
         } catch {
             print("Web Export Failed: \(error.localizedDescription)")
-            exportErrorMessage = "\(L10n.compilerError)\n\(error.localizedDescription)"
+            exportErrorMessage =
+                "\(String(localized: "Compiler Error: inklecate might be missing."))\n\(error.localizedDescription)"
             showingExportError = true
         }
         isExporting = false
@@ -361,7 +379,8 @@ struct ContentView: View {
 
     private func addItem() {
         withAnimation {
-            let newItem = Item(timestamp: Date(), title: L10n.newDocument, content: "")
+            let newItem = Item(
+                timestamp: Date(), title: String(localized: "New Document"), content: "")
             modelContext.insert(newItem)
             selection = newItem
         }
@@ -417,56 +436,82 @@ struct EditorView: View {
     @State private var previewContent: String = ""
     @State private var lastCompiledContent: String = ""
     @State private var debounceTask: Task<Void, Never>?
+    @AppStorage("appTheme") private var appTheme: AppTheme = .light
 
     var body: some View {
         HStack(spacing: 0) {
-            TextEditor(text: $item.content)
-                .font(.custom("Menlo", size: 14))
-                .scrollContentBackground(.hidden)
-                .padding(4)
+            InkTextView(text: $item.content)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             Divider()
 
             WebView(content: $previewContent, lastCompiledContent: $lastCompiledContent)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white)
+                .background(
+                    appTheme == .dark ? Color(red: 0.118, green: 0.118, blue: 0.118) : .white)
         }
-        .padding(.top)
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button(action: undoStory) {
+                    Label("Undo", systemImage: "arrow.uturn.backward")
+                }
+                .help("Return to previous branch")
+
+                Button(action: restartStory) {
+                    Label("Restart", systemImage: "arrow.counterclockwise")
+                }
+                .help("Restart story")
+            }
+        }
         .onChange(of: item.content) { oldValue, newValue in
-            handleContentChange(newValue)
+            debounceTask?.cancel()
+
+            let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            if trimmed.isEmpty {
+                previewContent = ""
+                lastCompiledContent = ""
+                return
+            }
+
+            if trimmed.hasPrefix("{") {
+                previewContent = newValue
+                lastCompiledContent = newValue
+                return
+            }
+
+            debounceTask = Task {
+                try? await Task.sleep(nanoseconds: 250 * 1_000_000)  // 250ms debounce
+                if !Task.isCancelled {
+                    await compileContent(newValue)
+                }
+            }
+        }
+        .onAppear {
+            print("INKIES DEBUG: EditorView appeared for item: \(item.title)")
+            // Initial compilation on appear
+            let trimmed = item.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty && !trimmed.hasPrefix("{") {
+                Task { await compileContent(item.content) }
+            } else if trimmed.hasPrefix("{") {
+                previewContent = item.content
+                lastCompiledContent = item.content
+            } else {
+                previewContent = ""
+                lastCompiledContent = ""
+            }
         }
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
         #endif
     }
 
-    private func handleContentChange(_ content: String) {
-        debounceTask?.cancel()
+    private func restartStory() {
+        WebView.currentWebView?.evaluateJavaScript("window.restartStory()")
+    }
 
-        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        if trimmed.isEmpty {
-            previewContent = ""
-            lastCompiledContent = ""
-            return
-        }
-        
-        if trimmed.hasPrefix("{") {
-            previewContent = content
-            lastCompiledContent = content
-            return
-        }
-
-        debounceTask = Task {
-            try? await Task.sleep(nanoseconds: 400 * 1_000_000)
-            
-            if Task.isCancelled { return }
-            
-            await MainActor.run {
-                compileContent(content)
-            }
-        }
+    private func undoStory() {
+        WebView.currentWebView?.evaluateJavaScript("window.undoStory()")
     }
 
     private func compileContent(_ content: String) {
@@ -475,15 +520,26 @@ struct EditorView: View {
                 let json = try await InkCompiler.shared.compile(content)
                 if !Task.isCancelled {
                     await MainActor.run {
-                        previewContent = json
-                        lastCompiledContent = content
+                        if WebView.isReadyForIncrementalUpdate {
+                            WebView.currentWebView?.evaluateJavaScript(
+                                "window.updateStory(\"\(json.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\""))\")"
+                            ) { result, error in
+                                if let error = error {
+                                    print("INKIES DEBUG: JS updateStory error: \(error)")
+                                    self.previewContent = json
+                                }
+                            }
+                        } else {
+                            self.previewContent = json
+                        }
+                        self.lastCompiledContent = content
                     }
                 }
             } catch {
                 if !Task.isCancelled {
                     await MainActor.run {
-                        previewContent = "COMPILER_ERROR: \(error.localizedDescription)"
-                        lastCompiledContent = content
+                        self.previewContent = "COMPILER_ERROR: \(error.localizedDescription)"
+                        self.lastCompiledContent = content
                     }
                 }
             }
@@ -492,9 +548,90 @@ struct EditorView: View {
 }
 
 #if os(macOS)
+    struct InkTextView: NSViewRepresentable {
+        @Binding var text: String
+        @AppStorage("appTheme") private var appTheme: AppTheme = .light
+
+        func makeNSView(context: Context) -> NSScrollView {
+            let scrollView = NSScrollView()
+            scrollView.hasVerticalScroller = true
+            scrollView.autoresizingMask = [.width, .height]
+
+            let textView = NSTextView()
+            textView.isVerticallyResizable = true
+            textView.isHorizontallyResizable = false
+            textView.autoresizingMask = [.width]
+            textView.textContainer?.containerSize = NSSize(
+                width: scrollView.contentSize.width, height: CGFloat.greatestFiniteMagnitude)
+            textView.textContainer?.widthTracksTextView = true
+            textView.delegate = context.coordinator
+            textView.isAutomaticQuoteSubstitutionEnabled = false
+            textView.isAutomaticDashSubstitutionEnabled = false
+            textView.isAutomaticSpellingCorrectionEnabled = false
+            textView.font = .monospacedSystemFont(ofSize: 13, weight: .regular)
+
+            // Background and coloring
+            textView.backgroundColor =
+                appTheme == .dark
+                ? NSColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0) : .textBackgroundColor
+            textView.insertionPointColor = appTheme == .dark ? .white : .black
+
+            scrollView.documentView = textView
+            return scrollView
+        }
+
+        func updateNSView(_ nsView: NSScrollView, context: Context) {
+            guard let textView = nsView.documentView as? NSTextView else { return }
+
+            if textView.string != text {
+                let attributedString = InkHighlighter.highlight(text, theme: appTheme)
+                textView.textStorage?.setAttributedString(attributedString)
+            }
+
+            // Update theme-based colors if changed
+            textView.backgroundColor =
+                appTheme == .dark
+                ? NSColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0) : .textBackgroundColor
+            textView.insertionPointColor = appTheme == .dark ? .white : .black
+        }
+
+        func makeCoordinator() -> Coordinator {
+            Coordinator(self)
+        }
+
+        class Coordinator: NSObject, NSTextViewDelegate {
+            var parent: InkTextView
+
+            init(_ parent: InkTextView) {
+                self.parent = parent
+            }
+
+            func textDidChange(_ notification: Notification) {
+                guard let textView = notification.object as? NSTextView else { return }
+                let newText = textView.string
+
+                // Update the binding
+                if parent.text != newText {
+                    parent.text = newText
+                }
+
+                // Re-apply highlighting
+                let attributedString = InkHighlighter.highlight(newText, theme: parent.appTheme)
+
+                // Preserve cursor position
+                let selectedRange = textView.selectedRange()
+                textView.textStorage?.setAttributedString(attributedString)
+                textView.setSelectedRange(selectedRange)
+            }
+        }
+    }
+
     struct WebView: NSViewRepresentable {
         @Binding var content: String
         @Binding var lastCompiledContent: String
+
+        static var currentWebView: WKWebView?
+        static var isReadyForIncrementalUpdate: Bool = false
 
         func makeNSView(context: Context) -> WKWebView {
             let webView = WKWebView()
@@ -502,10 +639,12 @@ struct EditorView: View {
 
             // Enable developer tools for Safari debugging
             webView.configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
-            
+
             // Add message handler for communication
-            webView.configuration.userContentController.add(context.coordinator, name: "inkiesBridge")
+            webView.configuration.userContentController.add(
+                context.coordinator, name: "inkiesBridge")
             
+            Self.currentWebView = webView
             return webView
         }
 
@@ -513,11 +652,13 @@ struct EditorView: View {
 
         func updateNSView(_ nsView: WKWebView, context: Context) {
             if context.coordinator.lastContent != content {
-                let html = generateHTML(for: content, theme: appTheme, enableIncrementalUpdate: true)
+                let html = generateHTML(
+                    for: content, theme: appTheme, enableIncrementalUpdate: true)
                 nsView.loadHTMLString(html, baseURL: Bundle.main.bundleURL)
                 context.coordinator.lastContent = content
                 context.coordinator.isFirstLoad = false
             }
+            Self.currentWebView = nsView
         }
 
         func makeCoordinator() -> Coordinator {
@@ -528,17 +669,23 @@ struct EditorView: View {
             var parent: WebView
             var lastContent: String = ""
             var isFirstLoad: Bool = true
+            var isReadyForIncrementalUpdate: Bool = false
 
             init(_ parent: WebView) {
                 self.parent = parent
             }
 
-            func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            func userContentController(
+                _ userContentController: WKUserContentController,
+                didReceive message: WKScriptMessage
+            ) {
                 if message.name == "inkiesBridge" {
                     if let body = message.body as? [String: Any],
-                       let action = body["action"] as? String {
+                        let action = body["action"] as? String
+                    {
                         if action == "ready" {
                             self.isFirstLoad = false
+                            WebView.isReadyForIncrementalUpdate = true
                         }
                     }
                 }
@@ -550,13 +697,18 @@ struct EditorView: View {
         @Binding var content: String
         @Binding var lastCompiledContent: String
 
+        static var currentWebView: WKWebView?
+        static var isReadyForIncrementalUpdate: Bool = false
+
         func makeUIView(context: Context) -> WKWebView {
             let webView = WKWebView()
             webView.navigationDelegate = context.coordinator
-            
+
             // Add message handler for communication
-            webView.configuration.userContentController.add(context.coordinator, name: "inkiesBridge")
+            webView.configuration.userContentController.add(
+                context.coordinator, name: "inkiesBridge")
             
+            Self.currentWebView = webView
             return webView
         }
 
@@ -564,11 +716,13 @@ struct EditorView: View {
 
         func updateUIView(_ uiView: WKWebView, context: Context) {
             if context.coordinator.lastContent != content {
-                let html = generateHTML(for: content, theme: appTheme, enableIncrementalUpdate: true)
+                let html = generateHTML(
+                    for: content, theme: appTheme, enableIncrementalUpdate: true)
                 uiView.loadHTMLString(html, baseURL: Bundle.main.bundleURL)
                 context.coordinator.lastContent = content
                 context.coordinator.isFirstLoad = false
             }
+            Self.currentWebView = uiView
         }
 
         func makeCoordinator() -> Coordinator {
@@ -579,17 +733,23 @@ struct EditorView: View {
             var parent: WebView
             var lastContent: String = ""
             var isFirstLoad: Bool = true
+            var isReadyForIncrementalUpdate: Bool = false
 
             init(_ parent: WebView) {
                 self.parent = parent
             }
 
-            func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            func userContentController(
+                _ userContentController: WKUserContentController,
+                didReceive message: WKScriptMessage
+            ) {
                 if message.name == "inkiesBridge" {
                     if let body = message.body as? [String: Any],
-                       let action = body["action"] as? String {
+                        let action = body["action"] as? String
+                    {
                         if action == "ready" {
                             self.isFirstLoad = false
+                            WebView.isReadyForIncrementalUpdate = true
                         }
                     }
                 }
@@ -602,19 +762,24 @@ struct EditorView: View {
 private func getInkScript() -> String {
     if let path = Bundle.main.path(forResource: "ink.min", ofType: "js") {
         if let content = try? String(contentsOfFile: path, encoding: .utf8) {
+            print("INKIES DEBUG: local ink.min.js loaded successfully (\(content.count) bytes)")
             return
                 "<script>/* InkJS included from Bundle (\(content.count) bytes) */\n\(content)</script>"
         } else {
+            print("INKIES DEBUG: ERROR - local ink.min.js found but failed to read")
             return
                 "<script>console.error('INKIES DEBUG: local ink.min.js found but failed to read');</script>"
         }
     }
     // Fallback to CDN if local file not found (User needs to add it to bundle)
+    print("INKIES DEBUG: WARNING - local ink.min.js NOT found in bundle, using CDN fallback")
     return
         #"<script src="https://unpkg.com/inkjs/dist/ink.js"></script><script>console.warn('INKIES DEBUG: local ink.min.js NOT found in bundle, using CDN');</script>"#
 }
 
-private func generateHTML(for inkContext: String, theme: AppTheme, enableIncrementalUpdate: Bool = false) -> String {
+private func generateHTML(
+    for inkContext: String, theme: AppTheme, enableIncrementalUpdate: Bool = false
+) -> String {
     let safeContent = inkContext.replacingOccurrences(of: "\\", with: "\\\\")
         .replacingOccurrences(of: "\"", with: "\\\"")
         .replacingOccurrences(of: "\n", with: "\\n")
@@ -664,16 +829,6 @@ private func generateHTML(for inkContext: String, theme: AppTheme, enableIncreme
                 }
                 p { margin-bottom: 1.5em; text-align: justify; }
                 pre { background: #f4f4f4; padding: 15px; border-radius: 4px; overflow-x: auto; color: #333; font-family: monospace; }
-                #debug {
-                    margin-top: 40px;
-                    padding: 10px;
-                    background: #fff3cd;
-                    color: #856404;
-                    border: 1px solid #ffeeba;
-                    border-radius: 4px;
-                    font-size: 0.85em;
-                    font-family: monospace;
-                }
                 em.end {
                     display: block;
                     text-align: center;
@@ -685,30 +840,32 @@ private func generateHTML(for inkContext: String, theme: AppTheme, enableIncreme
         </head>
         <body>
             <div id="story"></div>
-            
-            <div id="debug" style="display:none;">
-                <strong>Debug Console:</strong>
-                <div id="debug-log"></div>
-            </div>
 
             <script>
                 (function() {
                     var storyContent = "\(safeContent)";
                     var story = null;
                     var storyContainer = document.getElementById('story');
+                    var history = [];
                     
                     function log(msg) {
-                        var d = document.getElementById('debug');
-                        d.style.display = 'block';
-                        var l = document.getElementById('debug-log');
-                        l.innerHTML += "<div>" + msg + "</div>";
                         console.log(msg);
                     }
 
                     window.onerror = function(msg, url, line) {
-                        log("JS Error: " + msg + " (Line " + line + ")");
+                        var errorMsg = "JS Error: " + msg + " (Line " + line + ")";
+                        log(errorMsg);
+                        
+                        if (window.webkit && window.webkit.messageHandlers.inkiesBridge) {
+                            window.webkit.messageHandlers.inkiesBridge.postMessage({
+                                action: "error",
+                                message: errorMsg
+                            });
+                        }
                         return false;
                     };
+                    
+                    // Console logging is standard now
 
                     function clearStory() {
                         storyContainer.innerHTML = '';
@@ -726,6 +883,9 @@ private func generateHTML(for inkContext: String, theme: AppTheme, enableIncreme
                             choiceDiv.classList.add('choice');
                             choiceDiv.innerText = choice.text;
                             choiceDiv.onclick = function() {
+                                // Save state before making choice
+                                if (story) history.push(story.state.toJson());
+                                
                                 story.ChooseChoiceIndex(choice.index);
                                 var existingChoices = storyContainer.querySelectorAll('.choice');
                                 existingChoices.forEach(c => c.remove());
@@ -754,13 +914,38 @@ private func generateHTML(for inkContext: String, theme: AppTheme, enableIncreme
                         }
                     }
 
-                    function loadStory(jsonContent) {
-                        try {
+                    function updateStory(json) {
+                        log("Updating story incrementally...");
+                        loadStory(json);
+                    }
+                    window.updateStory = updateStory;
+
+                    window.restartStory = function() {
+                        log("Restarting story...");
+                        loadStory(storyContent);
+                    };
+
+                    window.undoStory = function() {
+                        if (history.length > 0) {
+                            log("Undoing last choice...");
+                            var prevState = history.pop();
+                            story.state.LoadJson(prevState);
                             clearStory();
-                            story = new inkjs.Story(jsonContent);
                             continueStory();
-                        } catch(jsonErr) {
-                            log("JSON Parse/Run Error: " + jsonErr.message);
+                        } else {
+                            log("Nothing to undo.");
+                        }
+                    };
+
+                    function loadStory(input) {
+                        try {
+                            const storyData = (typeof input === 'string') ? JSON.parse(input) : input;
+                            story = new inkjs.Story(storyData);
+                            history = []; // Clear history on new load
+                            clearStory();
+                            continueStory();
+                        } catch (e) {
+                            log("Error loading story: " + e);
                         }
                     }
 
@@ -787,8 +972,7 @@ private func generateHTML(for inkContext: String, theme: AppTheme, enableIncreme
                         if (storyContent.trim().length === 0) {
                             showEmpty();
                         } else if (storyContent.trim().startsWith('{')) {
-                            var jsonContent = JSON.parse(storyContent);
-                            loadStory(jsonContent);
+                            loadStory(storyContent);
                         } else if (storyContent.startsWith('COMPILER_ERROR:')) {
                             var errorMsg = storyContent.substring('COMPILER_ERROR:'.length);
                             showError(errorMsg);
@@ -797,6 +981,13 @@ private func generateHTML(for inkContext: String, theme: AppTheme, enableIncreme
                                 <p><strong>Raw Ink Code Detected</strong></p>
                                 <p>Compiling...</p>
                             `;
+                        }
+                        
+                        // Notify native side that JS is ready for incremental updates
+                        if (window.webkit && window.webkit.messageHandlers.inkiesBridge) {
+                            window.webkit.messageHandlers.inkiesBridge.postMessage({
+                                action: "ready"
+                            });
                         }
                         
                     } catch(e) {
@@ -853,61 +1044,61 @@ struct InkExportDocument: FileDocument {
 // MARK: - Compilation Cache
 actor CompilationCache {
     static let shared = CompilationCache()
-    
+
     private var cache: [String: CacheEntry] = [:]
     private let maxCacheSize = 50
     private var accessOrder: [String] = []
-    
+
     struct CacheEntry {
         let inkCode: String
         let compiledResult: String
         let timestamp: Date
         let hash: String
     }
-    
+
     func getCachedResult(for inkCode: String) -> String? {
         let codeHash = hashString(inkCode)
-        
+
         if let entry = cache[codeHash], entry.inkCode == inkCode {
             updateAccessOrder(for: codeHash)
             return entry.compiledResult
         }
         return nil
     }
-    
+
     func cacheResult(inkCode: String, compiledResult: String) {
         let codeHash = hashString(inkCode)
-        
+
         if cache.count >= maxCacheSize {
             removeOldestEntry()
         }
-        
+
         let entry = CacheEntry(
             inkCode: inkCode,
             compiledResult: compiledResult,
             timestamp: Date(),
             hash: codeHash
         )
-        
+
         cache[codeHash] = entry
         updateAccessOrder(for: codeHash)
     }
-    
+
     func clearCache() {
         cache.removeAll()
         accessOrder.removeAll()
     }
-    
+
     private func hashString(_ string: String) -> String {
         let data = Data(string.utf8)
         return data.base64EncodedString()
     }
-    
+
     private func updateAccessOrder(for hash: String) {
         accessOrder.removeAll { $0 == hash }
         accessOrder.append(hash)
     }
-    
+
     private func removeOldestEntry() {
         guard !accessOrder.isEmpty else { return }
         let oldestHash = accessOrder.removeFirst()
@@ -918,28 +1109,44 @@ actor CompilationCache {
 // MARK: - Ink Compiler Class
 actor InkCompiler {
     static let shared = InkCompiler()
+    private var currentProcess: Process?
+    private var hasCheckedResources = false
 
     // Potential paths for inklecate
     private let possiblePaths = [
         "/opt/homebrew/bin/inklecate",
         "/usr/local/bin/inklecate",
     ]
-    
+
     private var isCompiling = false
     private var pendingCompilation: Task<String, Error>?
 
     func findInklecate() -> String? {
-        // 1. Check App Bundle (Preferred for standalone)
+        // 1. Check App Bundle Resources (Standard for bundled resources)
         if let bundledPath = Bundle.main.path(forResource: "inklecate", ofType: nil) {
+            print("INKIES DEBUG: Found inklecate in Resources: \(bundledPath)")
             return bundledPath
         }
 
-        // 2. Check System Paths
+        // 2. Check App Bundle Contents/MacOS (Backup location)
+        if let execPath = Bundle.main.executablePath {
+            let binDir = URL(fileURLWithPath: execPath).deletingLastPathComponent()
+            let bundleBin = binDir.appendingPathComponent("inklecate").path
+            if FileManager.default.fileExists(atPath: bundleBin) {
+                print("INKIES DEBUG: Found inklecate in Contents/MacOS: \(bundleBin)")
+                return bundleBin
+            }
+        }
+
+        // 3. Check System Paths
         for path in possiblePaths {
             if FileManager.default.fileExists(atPath: path) {
+                print("INKIES DEBUG: Found inklecate in system path: \(path)")
                 return path
             }
         }
+
+        print("INKIES DEBUG: ERROR - inklecate NOT found anywhere")
         return nil
     }
 
@@ -948,17 +1155,17 @@ actor InkCompiler {
         if let cachedResult = await CompilationCache.shared.getCachedResult(for: inkCode) {
             return cachedResult
         }
-        
+
         // Cancel any pending compilation
         pendingCompilation?.cancel()
-        
+
         // Create new compilation task
         let compilationTask = Task<String, Error> {
             return try await performCompilation(inkCode)
         }
-        
+
         pendingCompilation = compilationTask
-        
+
         do {
             let result = try await compilationTask.value
             // Cache the successful result
@@ -968,19 +1175,46 @@ actor InkCompiler {
             throw error
         }
     }
-    
+
     private func performCompilation(_ inkCode: String) async throws -> String {
-        guard let compilerPath = findInklecate() else {
-            throw NSError(
-                domain: "InkCompiler", code: 404,
-                userInfo: [
-                    NSLocalizedDescriptionKey:
-                        "inklecate compiler not found. Please install manually or drag into Xcode."
-                ])
+        // 0. Build diagnostics (only once)
+        let fm = FileManager.default
+        if !hasCheckedResources {
+            hasCheckedResources = true
+            let dlls = ["ink_compiler.dll", "ink-engine-runtime.dll"]
+            print("INKIES DEBUG: --- Compiler Diagnostics ---")
+            if let resPath = Bundle.main.resourcePath {
+                let resURL = URL(fileURLWithPath: resPath)
+                for dll in dlls {
+                    let exists = fm.fileExists(atPath: resURL.appendingPathComponent(dll).path)
+                    print("INKIES DEBUG: \(dll) exists in Resources: \(exists)")
+                }
+                let inklecateExists = fm.fileExists(
+                    atPath: resURL.appendingPathComponent("inklecate").path)
+                print("INKIES DEBUG: inklecate exists: \(inklecateExists)")
+                if inklecateExists {
+                    let isExec = fm.isExecutableFile(
+                        atPath: resURL.appendingPathComponent("inklecate").path)
+                    print("INKIES DEBUG: inklecate is executable: \(isExec)")
+                }
+            }
         }
 
-        // 1. Write temp file
-        let tempDir = FileManager.default.temporaryDirectory
+        // Interrupt any existing process
+        if let existing = currentProcess, existing.isRunning {
+            existing.terminate()
+            print("INKIES DEBUG: Terminated previous compilation process")
+        }
+
+        guard let compilerPath = findInklecate() else {
+            print("INKIES DEBUG: ERROR - compiler path not found")
+            throw NSError(
+                domain: "InkCompiler", code: 404,
+                userInfo: [NSLocalizedDescriptionKey: "inklecate compiler not found in bundle."])
+        }
+
+        // 1. Prepare temporary files
+        let tempDir = fm.temporaryDirectory
         let tempInkFile = tempDir.appendingPathComponent("temp.ink")
         let tempJsonFile = tempDir.appendingPathComponent("temp.json")
 
@@ -997,42 +1231,60 @@ actor InkCompiler {
 
         // 2. Run inklecate process
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: compilerPath)
+        let compilerURL = URL(fileURLWithPath: compilerPath)
+        process.executableURL = compilerURL
         process.arguments = ["-o", tempJsonFile.path, tempInkFile.path]
 
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = pipe
+        // Set working directory to where inklecate is, so it finds DLLs
+        process.currentDirectoryURL = compilerURL.deletingLastPathComponent()
 
-        return try await withCheckedThrowingContinuation { continuation in
-            process.terminationHandler = { process in
-                if process.terminationStatus == 0 {
-                    do {
-                        let jsonData = try String(contentsOf: tempJsonFile, encoding: .utf8)
-                        continuation.resume(returning: jsonData)
-                    } catch {
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+
+        print("INKIES DEBUG: Starting compilation: \(compilerPath)")
+
+        self.currentProcess = process
+
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                process.terminationHandler = { process in
+                    if process.terminationStatus == 0 {
+                        do {
+                            let jsonData = try Data(contentsOf: tempJsonFile)
+                            let jsonString = String(data: jsonData, encoding: .utf8) ?? ""
+                            continuation.resume(returning: jsonString)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    } else {
+                        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+                        let errorString =
+                            String(data: errorData, encoding: .utf8) ?? "Unknown Error"
                         continuation.resume(
                             throwing: NSError(
-                                domain: "InkCompiler", code: 502,
-                                userInfo: [
-                                    NSLocalizedDescriptionKey:
-                                        "Compiler finished but JSON output unreadable."
-                                ]))
+                                domain: "InkCompiler", code: Int(process.terminationStatus),
+                                userInfo: [NSLocalizedDescriptionKey: errorString]))
                     }
-                } else {
-                    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                    let output = String(data: data, encoding: .utf8) ?? "Unknown compiler error"
-                    continuation.resume(
-                        throwing: NSError(
-                            domain: "InkCompiler", code: Int(process.terminationStatus),
-                            userInfo: [NSLocalizedDescriptionKey: output]))
+
+                    // Cleanup temp files
+                    try? FileManager.default.removeItem(at: tempInkFile)
+                    try? FileManager.default.removeItem(at: tempJsonFile)
+                }
+
+                do {
+                    try process.run()
+                } catch {
+                    print(
+                        "INKIES DEBUG: ERROR - failed to run process: \(error.localizedDescription)")
+                    continuation.resume(throwing: error)
                 }
             }
-
-            do {
-                try process.run()
-            } catch {
-                continuation.resume(throwing: error)
+        } onCancel: {
+            if process.isRunning {
+                process.terminate()
+                print("INKIES DEBUG: Compiling task canceled, terminated process")
             }
         }
     }

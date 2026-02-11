@@ -9,21 +9,19 @@ import Foundation
 
 struct InkSnippet {
     let name: String
-    let nameCN: String
     let ink: String
 
     var localizedName: String {
-        Language.current == .chinese ? nameCN : name
+        String(localized: String.LocalizationValue(name))
     }
 }
 
 struct InkSnippetCategory {
     let name: String
-    let nameCN: String
     let snippets: [InkSnippet]
 
     var localizedName: String {
-        Language.current == .chinese ? nameCN : name
+        String(localized: String.LocalizationValue(name))
     }
 }
 
@@ -33,11 +31,9 @@ struct InkSnippets {
     // MARK: - Basic Structure
     static let basicStructure = InkSnippetCategory(
         name: "Basic structure",
-        nameCN: "基本结构",
         snippets: [
             InkSnippet(
                 name: "Knot (main section)",
-                nameCN: "结(主要章节)",
                 ink: """
                     === knotName ===
                     This is the content of the knot.
@@ -47,7 +43,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Stitch (sub-section)",
-                nameCN: "针(子章节)",
                 ink: """
                     = stitchName
                     This is the content of the stitch that should be embedded within a knot.
@@ -57,12 +52,10 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Divert",
-                nameCN: "跳转",
                 ink: "-> targetKnotName"
             ),
             InkSnippet(
                 name: "Ending indicator",
-                nameCN: "结束标记",
                 ink: "-> END\n"
             ),
         ]
@@ -71,26 +64,21 @@ struct InkSnippets {
     // MARK: - Choices
     static let choices = InkSnippetCategory(
         name: "Choices",
-        nameCN: "选项",
         snippets: [
             InkSnippet(
                 name: "Basic Choice",
-                nameCN: "基本选项",
                 ink: "* This is a choice that can only be chosen once\n"
             ),
             InkSnippet(
                 name: "Sticky choice",
-                nameCN: "粘性选项",
                 ink: "+ This is a sticky choice - the player can choose it more than once\n"
             ),
             InkSnippet(
                 name: "Choice without printing",
-                nameCN: "不打印的选项",
                 ink: "* [A choice where the content isn't printed after choosing]\n"
             ),
             InkSnippet(
                 name: "Choice with mixed output",
-                nameCN: "混合输出选项",
                 ink: "* Try [it] this example!\n"
             ),
         ]
@@ -99,26 +87,21 @@ struct InkSnippets {
     // MARK: - Variables
     static let variables = InkSnippetCategory(
         name: "Variables",
-        nameCN: "变量",
         snippets: [
             InkSnippet(
                 name: "Global variable",
-                nameCN: "全局变量",
                 ink: "VAR myNumber = 5\n"
             ),
             InkSnippet(
                 name: "Temporary variable",
-                nameCN: "临时变量",
                 ink: "temp myTemporaryValue = 5\n"
             ),
             InkSnippet(
                 name: "Modify variable",
-                nameCN: "修改变量",
                 ink: "~ myNumber = myNumber + 1\n"
             ),
             InkSnippet(
                 name: "Get variable type",
-                nameCN: "获取变量类型",
                 ink: """
                     === function type_of(x)
                         { x:
@@ -143,11 +126,9 @@ struct InkSnippets {
     // MARK: - Inline Logic
     static let inlineLogic = InkSnippetCategory(
         name: "Inline logic",
-        nameCN: "内联逻辑",
         snippets: [
             InkSnippet(
                 name: "Condition",
-                nameCN: "条件",
                 ink:
                     "{yourVariable: This is written if yourVariable is true|Otherwise this is written}"
             )
@@ -157,11 +138,9 @@ struct InkSnippets {
     // MARK: - Multi-line Logic
     static let multilineLogic = InkSnippetCategory(
         name: "Multi-line logic",
-        nameCN: "多行逻辑",
         snippets: [
             InkSnippet(
                 name: "Condition",
-                nameCN: "条件",
                 ink: """
                     {yourVariable:
                         This is written if yourVariable is true.
@@ -177,16 +156,13 @@ struct InkSnippets {
     // MARK: - Comments
     static let comments = InkSnippetCategory(
         name: "Comments",
-        nameCN: "注释",
         snippets: [
             InkSnippet(
                 name: "Single-line comment",
-                nameCN: "单行注释",
                 ink: "// This line is a comment.\n"
             ),
             InkSnippet(
                 name: "Block comment",
-                nameCN: "块注释",
                 ink: """
                     /* ---------------------------------
 
@@ -202,11 +178,9 @@ struct InkSnippets {
     // MARK: - List Handling
     static let listHandling = InkSnippetCategory(
         name: "List-handling",
-        nameCN: "列表处理",
         snippets: [
             InkSnippet(
                 name: "List: pop",
-                nameCN: "列表: pop",
                 ink: """
                     === function pop(ref list)
                         ~ temp x = LIST_MIN(list) 
@@ -217,7 +191,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "List: pop_random",
-                nameCN: "列表: pop_random",
                 ink: """
                     === function pop_random(ref list)
                         ~ temp x = LIST_RANDOM(list) 
@@ -228,7 +201,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "List: LIST_NEXT and LIST_PREV",
-                nameCN: "列表: LIST_NEXT 和 LIST_PREV",
                 ink: """
                     === function LIST_NEXT(x) 
                         ~ return LIST_RANGE(LIST_ALL(x), x, LIST_MAX(LIST_ALL(x))) - x
@@ -240,7 +212,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "List: list_item_is_member_of",
-                nameCN: "列表: list_item_is_member_of",
                 ink: """
                     === function list_item_is_member_of(item, list)
                         ~ return LIST_COUNT(list ^ item) > 0
@@ -249,7 +220,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "List: list_random_subset",
-                nameCN: "列表: list_random_subset",
                 ink: """
                     === function list_random_subset(list)
                         { list:
@@ -272,11 +242,9 @@ struct InkSnippets {
     // MARK: - Useful Functions
     static let usefulFunctions = InkSnippetCategory(
         name: "Useful functions",
-        nameCN: "实用函数",
         snippets: [
             InkSnippet(
                 name: "Logic: maybe",
-                nameCN: "逻辑: maybe",
                 ink: """
                     === function maybe(p)
                         ~ return RANDOM(1, 100) <= p
@@ -285,7 +253,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Mathematics: divisor",
-                nameCN: "数学: divisor",
                 ink: """
                     === function divisor(x, n)
                     ~ return (x - x mod n) / n
@@ -293,7 +260,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Mathematics: abs",
-                nameCN: "数学: abs",
                 ink: """
                     === function abs(x)
                     { x < 0:
@@ -305,7 +271,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Flow: came_from",
-                nameCN: "流程: came_from",
                 ink: """
                     === function came_from(-> x) 
                         ~ return TURNS_SINCE(x) == 0
@@ -314,7 +279,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Flow: seen_very_recently",
-                nameCN: "流程: seen_very_recently",
                 ink: """
                     === function seen_very_recently(-> x)
                         ~ return TURNS_SINCE(x) >= 0 && TURNS_SINCE(x) <= 3
@@ -323,7 +287,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Flow: seen_more_recently_than",
-                nameCN: "流程: seen_more_recently_than",
                 ink: """
                     === function seen_more_recently_than(-> a, -> b)
                         ~ return TURNS_SINCE(a) >= 0 && TURNS_SINCE(a) < TURNS_SINCE(b)
@@ -332,7 +295,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Printing: a (or an)",
-                nameCN: "打印: a (或 an)",
                 ink: """
                     === function a(word)
                         ~ temp firstLetter = "{word}"
@@ -346,7 +308,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Printing: UPPERCASE",
-                nameCN: "打印: 大写",
                 ink: """
                     === function UPPERCASE(x)
                         ~ return "{x}" // Ink doesn't have native uppercase, use external function
@@ -355,7 +316,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Printing: list_with_commas",
-                nameCN: "打印: 逗号分隔列表",
                 ink: """
                     === function list_with_commas(list)
                         { LIST_COUNT(list) == 0:
@@ -379,11 +339,9 @@ struct InkSnippets {
     // MARK: - Useful Systems
     static let usefulSystems = InkSnippetCategory(
         name: "Useful systems",
-        nameCN: "实用系统",
         snippets: [
             InkSnippet(
                 name: "List Items as Integer Variables",
-                nameCN: "列表项作为整数变量",
                 ink: """
                     // Use list items to store integer values
                     LIST health_points = (hp0), hp1, hp2, hp3, hp4, hp5, hp6, hp7, hp8, hp9, hp10
@@ -406,7 +364,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Swing Variables",
-                nameCN: "摆动变量",
                 ink: """
                     // A variable that swings between -3 and +3
                     VAR trust = 0
@@ -432,7 +389,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Storylets",
-                nameCN: "故事片段系统",
                 ink: """
                     // Simple storylet system
                     LIST storylets = (story_a), story_b, story_c
@@ -467,11 +423,9 @@ struct InkSnippets {
     // MARK: - Full Stories
     static let fullStories = InkSnippetCategory(
         name: "Full stories",
-        nameCN: "完整故事",
         snippets: [
             InkSnippet(
                 name: "Crime Scene (from Writing with Ink)",
-                nameCN: "犯罪现场 (来自 Writing with Ink)",
                 ink: """
                     // Crime Scene - A simple interactive mystery
                     VAR found_clues = 0
@@ -504,7 +458,6 @@ struct InkSnippets {
             ),
             InkSnippet(
                 name: "Simple Dialogue Example",
-                nameCN: "简单对话示例",
                 ink: """
                     // Simple dialogue with choices
                     VAR player_name = "Stranger"
