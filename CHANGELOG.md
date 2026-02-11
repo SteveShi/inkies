@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.5.1 (2026-02-11)
+
+### 🚀 Performance Optimizations
+- **Faster Rendering**: Implemented compilation caching and optimized WebView updates to significantly improve preview rendering speed.
+- **Debounce Optimization**: Reduced debounce time from 600ms to 400ms for more responsive editing experience.
+
+### 🛠 Infrastructure Improvements
+- **Included Compiler**: Integrated `inklecate` compiler directly into the app bundle, eliminating the need for users to manually install it.
+- **Build System Enhancement**: Updated project configuration to properly include required resources in the application bundle.
+
+### 📦 Repository Cleanup
+- **Improved .gitignore**: Updated to exclude unnecessary files and folders, including IDE-specific files, temporary files, and Windows-specific DLLs.
+
 ## 0.5.0 (2026-01-18)
 
 ### 🚀 Performance & Infrastructure

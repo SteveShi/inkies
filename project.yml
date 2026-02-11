@@ -12,6 +12,11 @@ targets:
     deploymentTarget: "14.6"
     sources:
       - path: inkies
+    resources:
+      - path: inkies/inklecate
+      - path: inkies/ink.min.js
+      - path: inkies/ink_compiler.dll
+      - path: inkies/ink-engine-runtime.dll
     dependencies:
       - package: WhatsNewKit
     settings:
@@ -31,7 +36,7 @@ targets:
         LD_RUNPATH_SEARCH_PATHS:
           - $(inherited)
           - "@executable_path/../Frameworks"
-        MARKETING_VERSION: 0.5
+        MARKETING_VERSION: 0.5.1
         PRODUCT_BUNDLE_IDENTIFIER: listentotherain.inkies
         REGISTER_APP_GROUPS: YES
         STRING_CATALOG_GENERATE_SYMBOLS: YES
