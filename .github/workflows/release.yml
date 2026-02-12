@@ -9,7 +9,39 @@ on:
   workflow_dispatch:
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check_version.outputs.skip }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for tags
+
+      - name: Get Version
+        id: get_version
+        run: |
+          VERSION=$(grep "MARKETING_VERSION" project.yml | head -n 1 | awk -F': ' '{print $2}' | tr -d '"')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check Version Changes
+        id: check_version
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Version $VERSION already exists. Skipping build."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version $VERSION is new."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
   build:
+    needs: check
+    if: needs.check.outputs.skip != 'true'
     runs-on: macos-latest
     permissions:
       contents: write
@@ -29,30 +61,10 @@ jobs:
       - name: Generate Xcode Project
         run: xcodegen generate
 
-      - name: Get Version
-        id: get_version
-        run: |
-          VERSION=$(grep "MARKETING_VERSION" inkies.xcodeproj/project.pbxproj | head -n 1 | awk -F' = ' '{print $2}' | tr -d '"; ')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Check Version Changes
-        id: check_version
-        env:
-          VERSION: ${{ steps.get_version.outputs.version }}
-        run: |
-          if git ls-remote --exit-code --tags origin "v$VERSION" >/dev/null 2>&1; then
-            echo "Version $VERSION already exists. Skipping build."
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "Version $VERSION is new."
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Extract Changelog
         id: extract_changelog
-        if: steps.check_version.outputs.skip != 'true'
         run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
+          VERSION="${{ needs.check.outputs.version }}"
           # Extract section starting with ## VERSION until the next ## header or EOF
           sed -n "/^## $VERSION/,/^## /p" CHANGELOG.md > temp_notes.md
           
@@ -76,7 +88,6 @@ jobs:
           fi
 
       - name: Build Universal App
-        if: steps.check_version.outputs.skip != 'true'
         run: |
           xcodebuild build \
             -project inkies.xcodeproj \
@@ -89,7 +100,6 @@ jobs:
             CODE_SIGNING_REQUIRED=NO
 
       - name: Create DMG
-        if: steps.check_version.outputs.skip != 'true'
         run: |
           APP_PATH=$(find build -name "inkies.app" -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
@@ -99,15 +109,14 @@ jobs:
           echo "Found app at: $APP_PATH"
           mkdir -p dist
           cp -R "$APP_PATH" dist/
-          hdiutil create -volname "Inkies" -srcfolder dist -ov -format UDZO "Inkies-v${{ steps.get_version.outputs.version }}.dmg"
+          hdiutil create -volname "Inkies" -srcfolder dist -ov -format UDZO "Inkies-v${{ needs.check.outputs.version }}.dmg"
 
       - name: Create Release
-        if: steps.check_version.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.get_version.outputs.version) }}
-          files: "Inkies-v${{ steps.get_version.outputs.version }}.dmg"
-          name: "Release v${{ steps.get_version.outputs.version }}"
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', needs.check.outputs.version) }}
+          files: "Inkies-v${{ needs.check.outputs.version }}.dmg"
+          name: "Release v${{ needs.check.outputs.version }}"
           body_path: ${{ steps.extract_changelog.outputs.notes_path }}
           generate_release_notes: true
         env:
