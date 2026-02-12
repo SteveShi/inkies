@@ -3,7 +3,7 @@
 
 ## Our Pledge
 
-We pledge to make our community welcoming, safe, and equitable for all.
+We pledge to make our community welcoming, safe, 和 equitable for all.
 
 We are committed to fostering an environment that respects and promotes the dignity, rights, and contributions of all individuals, regardless of characteristics including race, ethnicity, caste, color, age, physical characteristics, neurodiversity, disability, sex or gender, gender identity or expression, sexual orientation, language, philosophy or religion, national or social origin, socio-economic position, level of education, or other status. The same privileges of participation are extended to everyone who participates in good faith and in accordance with this Covenant.
 
@@ -14,18 +14,18 @@ While acknowledging differences in social norms, we all strive to meet our commu
 
 With these considerations in mind, we agree to behave mindfully toward each other and act in ways that center our shared values, including:
 
-1. Respecting the **purpose of our community**, our activities, and our ways of gathering.
+1. Respecting the **purpose of our community**, our activities, 和 our ways of gathering.
 2. Engaging **kindly and honestly** with others.
 3. Respecting **different viewpoints** and experiences.
 4. **Taking responsibility** for our actions and contributions.
-5. Gracefully giving and accepting **constructive feedback**.
+5. Gracefully giving and accepting **constructive feedback**。
 6. Committing to **repairing harm** when it occurs.
-7. Behaving in other ways that promote and sustain the **well-being of our community**.
+7. Behaving in other ways that promote and sustain the **well-being of our community**。
 
 
 ## Restricted Behaviors
 
-We agree to restrict the following behaviors in our community. Instances, threats, and promotion of these behaviors are violations of this Code of Conduct.
+We agree to restrict the following behaviors in our community. Instances, threats, 和 promotion of these behaviors are violations of this Code of Conduct.
 
 1. **Harassment.** Violating explicitly expressed boundaries or engaging in unnecessary personal attention after any clear request to stop.
 2. **Character attacks.** Making insulting, demeaning, or pejorative comments directed at a community member or group of people.
