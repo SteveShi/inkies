@@ -241,7 +241,7 @@ extension inkiesApp {
     @MainActor
     private func handleIncomingURL(_ url: URL) {
         // ... (rest of logic)
-        let context = sharedModelContainer.mainContext
+        let context = inkiesApp.sharedModelContainer.mainContext
 
         do {
             let accessing = url.startAccessingSecurityScopedResource()
