@@ -15,15 +15,23 @@ struct inkiesApp: App {
         let schema = Schema([
             Item.self
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        
+        // Define explicit storage path: ~/Library/Application Support/inkies/
+        let fileManager = FileManager.default
+        let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            .first!
+        let storeFolderURL = appSupportURL.appendingPathComponent("inkies", isDirectory: true)
+
+        // Ensure the directory exists
+        try? fileManager.createDirectory(at: storeFolderURL, withIntermediateDirectories: true)
+
+        let storeURL = storeFolderURL.appendingPathComponent("inkies.sqlite")
+        print("INKIES DEBUG: Explicit SwiftData Store URL: \(storeURL.path)")
+
+        let modelConfiguration = ModelConfiguration(schema: schema, url: storeURL)
 
         do {
-            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            // Log the store URL for debugging
-            if let url = container.configurations.first?.url {
-                print("INKIES DEBUG: SwiftData Store URL: \(url.path)")
-            }
-            return container
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
