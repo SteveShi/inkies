@@ -26,7 +26,6 @@ struct inkiesApp: App {
         try? fileManager.createDirectory(at: storeFolderURL, withIntermediateDirectories: true)
 
         let storeURL = storeFolderURL.appendingPathComponent("inkies.sqlite")
-        print("INKIES DEBUG: Explicit SwiftData Store URL: \(storeURL.path)")
 
         let modelConfiguration = ModelConfiguration(schema: schema, url: storeURL)
 

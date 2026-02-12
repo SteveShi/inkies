@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.6.2 (2026-02-12)
+
+### 🐞 Bug Fixes
+- **Persistence**: Fixed data loss after application inactive period by implementing explicit saves and lifecycle-based triggers.
+- **Storage Unification**: Moved data storage to `~/Library/Application Support/inkies/` to support non-paid developer accounts and avoid sandbox issues.
+- **Cleanup**: Removed remaining debug logs and refined project configuration.
+
 ## 0.6.1 (2026-02-11)
 
 ### 🐞 Bug Fixes
