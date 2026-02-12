@@ -2,7 +2,9 @@
 
 **Inkies** is a powerful, lightweight macOS editor and live previewer for the **Ink** narrative scripting language (by [inkle](https://www.inklestudios.com/)). It’s designed to provide a sleek, modern, and localized experience for writers and game developers.
 
-![App Icon](inkies/Assets.xcassets/AppIcon.appiconset/mac_256@2x.png)
+<p align="center">
+<img src="inkies/Assets.xcassets/AppIcon.appiconset/mac_512@2x.png" alt="inkies Icon" width='128' />
+</p>
 
 ## ✨ Features
 
