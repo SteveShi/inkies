@@ -112,12 +112,10 @@ struct inkiesApp: App {
         .modelContainer(inkiesApp.sharedModelContainer)
         .onChange(of: scenePhase) { oldPhase, newPhase in
             if newPhase == .background || newPhase == .inactive {
-                print("INKIES DEBUG: ScenePhase changed to \(newPhase), triggering save")
                 do {
                     // Note: We use the sharedModelContainer's mainContext specifically
                     try inkiesApp.sharedModelContainer.mainContext.save()
                 } catch {
-                    print("INKIES DEBUG: Save error on scenePhase change: \(error.localizedDescription)")
                 }
             }
         }
