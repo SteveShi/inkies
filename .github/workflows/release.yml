@@ -35,8 +35,22 @@ jobs:
           VERSION=$(grep "MARKETING_VERSION" inkies.xcodeproj/project.pbxproj | head -n 1 | awk -F' = ' '{print $2}' | tr -d '"; ')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Check Version Changes
+        id: check_version
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          if git ls-remote --exit-code --tags origin "v$VERSION" >/dev/null 2>&1; then
+            echo "Version $VERSION already exists. Skipping build."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version $VERSION is new."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Extract Changelog
         id: extract_changelog
+        if: steps.check_version.outputs.skip != 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           # Extract section starting with ## VERSION until the next ## header or EOF
@@ -62,6 +76,7 @@ jobs:
           fi
 
       - name: Build Universal App
+        if: steps.check_version.outputs.skip != 'true'
         run: |
           xcodebuild build \
             -project inkies.xcodeproj \
@@ -74,6 +89,7 @@ jobs:
             CODE_SIGNING_REQUIRED=NO
 
       - name: Create DMG
+        if: steps.check_version.outputs.skip != 'true'
         run: |
           APP_PATH=$(find build -name "inkies.app" -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
@@ -86,6 +102,7 @@ jobs:
           hdiutil create -volname "Inkies" -srcfolder dist -ov -format UDZO "Inkies-v${{ steps.get_version.outputs.version }}.dmg"
 
       - name: Create Release
+        if: steps.check_version.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.get_version.outputs.version) }}
