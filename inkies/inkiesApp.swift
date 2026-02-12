@@ -11,18 +11,26 @@ import WhatsNewKit
 
 @main
 struct inkiesApp: App {
-    var sharedModelContainer: ModelContainer = {
+    static var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            // Log the store URL for debugging
+            if let url = container.configurations.first?.url {
+                print("INKIES DEBUG: SwiftData Store URL: \(url.path)")
+            }
+            return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.modelContext) private var modelContext // Add context for manual save if needed
 
     @AppStorage("appTheme") private var appTheme: AppTheme = .light
 
@@ -93,7 +101,18 @@ struct inkiesApp: App {
                 ))
                 .whatsNewSheet()
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(inkiesApp.sharedModelContainer)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background || newPhase == .inactive {
+                print("INKIES DEBUG: ScenePhase changed to \(newPhase), triggering save")
+                do {
+                    // Note: We use the sharedModelContainer's mainContext specifically
+                    try inkiesApp.sharedModelContainer.mainContext.save()
+                } catch {
+                    print("INKIES DEBUG: Save error on scenePhase change: \(error.localizedDescription)")
+                }
+            }
+        }
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button(String(localized: "New Ink File")) {

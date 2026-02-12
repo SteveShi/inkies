@@ -209,6 +209,7 @@ struct ContentView: View {
                     Button(String(localized: "Rename")) {
                         if let item = itemToRename {
                             item.title = renameTitle
+                            try? modelContext.save()
                         }
                     }
                     Button(String(localized: "Cancel"), role: .cancel) {}
@@ -404,6 +405,7 @@ struct ContentView: View {
                 timestamp: Date(), title: String(localized: "New Document"), content: "")
             modelContext.insert(newItem)
             selection = newItem
+            try? modelContext.save()
         }
     }
 
@@ -412,6 +414,7 @@ struct ContentView: View {
             for index in offsets {
                 modelContext.delete(items[index])
             }
+            try? modelContext.save()
         }
     }
 
