@@ -63,7 +63,7 @@ targets:
           copyFiles:
             destination: resources
             subpath: Examples
-      - path: inkies/Resources/InkIcon.png
+      - path: inkies/Resources/InkIcon.icns
         buildPhase: resources
     dependencies:
       - package: WhatsNewKit
