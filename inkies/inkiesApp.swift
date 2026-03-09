@@ -48,37 +48,37 @@ struct inkiesApp: App {
                 .environment(\.whatsNew, WhatsNewEnvironment(
                     whatsNewCollection: [
                         WhatsNew(
-                                version: "0.6.0",
+                                version: "0.7.0",
                                 title: WhatsNew.Title(
                                     text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
                             features: [
                                 .init(
-                                        image: .init(systemName: "highlighter"),
+                                        image: .init(systemName: "exclamationmark.triangle"),
                                         title: WhatsNew.Text(
-                                            String(localized: "Real-time Highlighting")),
+                                            String(localized: "Syntax Checking")),
                                         subtitle: WhatsNew.Text(
                                             String(
                                                 localized:
-                                                    "Native syntax highlighting for Ink script while you type."
+                                                    "Real-time Ink syntax validation with visual error and warning markers."
                                             ))
                                 ),
                                 .init(
-                                        image: .init(systemName: "arrow.uturn.backward.circle"),
-                                        title: WhatsNew.Text(String(localized: "Preview Controls")),
+                                        image: .init(systemName: "list.number"),
+                                        title: WhatsNew.Text(String(localized: "Refined Ruler")),
                                         subtitle: WhatsNew.Text(
                                             String(
                                                 localized:
-                                                    "Undo choices and restart your story directly from the toolbar."
+                                                    "Clean, minimalist line number display for improved focus and readability."
                                             ))
                                     ),
                                     .init(
-                                        image: .init(systemName: "gauge.with.needle"),
+                                        image: .init(systemName: "checkmark.circle"),
                                         title: WhatsNew.Text(
-                                            String(localized: "Performance Boost")),
+                                            String(localized: "Stability Fixes")),
                                         subtitle: WhatsNew.Text(
                                             String(
                                                 localized:
-                                                    "Flicker-free incremental updates and faster compilation."
+                                                    "Resolved rendering issues and improved document deletion behavior."
                                             ))
                                     ),
                                 ],
@@ -107,6 +107,9 @@ struct inkiesApp: App {
                     ]
                 ))
                 .whatsNewSheet()
+                .onOpenURL { url in
+                    handleIncomingURL(url)
+                }
         }
         .modelContainer(inkiesApp.sharedModelContainer)
         .onChange(of: scenePhase) { oldPhase, newPhase in

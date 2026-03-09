@@ -10,22 +10,60 @@ targets:
     type: application
     platform: macOS
     deploymentTarget: "14.6"
+    documentTypes:
+      - name: Ink Source
+        role: Editor
+        rank: Owner
+        icon: InkIcon
+        identifiers:
+          - com.inkle.ink
+    utiDeclarations:
+      - identifier: com.inkle.ink
+        description: Ink Source
+        conformsTo:
+          - public.plain-text
+        extensions:
+          - ink
+        icon: InkIcon
+      - identifier: com.inkle.ink-json
+        description: Ink JSON
+        conformsTo:
+          - public.json
+        extensions:
+          - json
     sources:
       - path: inkies
         excludes:
-          - "inklecate"
-          - "*.dll"
-          - "ink.min.js"
-      - path: inkies/inklecate
+          - "Resources/**"
+      - path: inkies/Resources/Compiler/inklecate
         buildPhase:
           copyFiles:
             destination: resources
+            subpath: Compiler
             codeSignOnCopy: true
-      - path: inkies/ink_compiler.dll
+      - path: inkies/Resources/Compiler/ink_compiler.dll
+        buildPhase:
+          copyFiles:
+            destination: resources
+            subpath: Compiler
+      - path: inkies/Resources/Compiler/ink-engine-runtime.dll
+        buildPhase:
+          copyFiles:
+            destination: resources
+            subpath: Compiler
+      - path: inkies/Resources/Scripts/ink.min.js
+        buildPhase:
+          copyFiles:
+            destination: resources
+            subpath: Scripts
+      - path: inkies/Resources/Localizable.xcstrings
         buildPhase: resources
-      - path: inkies/ink-engine-runtime.dll
-        buildPhase: resources
-      - path: inkies/ink.min.js
+      - path: inkies/Resources/Examples
+        buildPhase:
+          copyFiles:
+            destination: resources
+            subpath: Examples
+      - path: inkies/Resources/InkIcon.png
         buildPhase: resources
     dependencies:
       - package: WhatsNewKit
@@ -35,7 +73,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_STYLE: Automatic
         COMBINE_HIDPI_IMAGES: YES
-        CURRENT_PROJECT_VERSION: 405
+        CURRENT_PROJECT_VERSION: 406
         DEVELOPMENT_TEAM: W7A747LNTR
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: YES
@@ -46,7 +84,7 @@ targets:
         LD_RUNPATH_SEARCH_PATHS:
           - $(inherited)
           - "@executable_path/../Frameworks"
-        MARKETING_VERSION: 0.6.2
+        MARKETING_VERSION: 0.7.0
         PRODUCT_BUNDLE_IDENTIFIER: listentotherain.inkies
         STRING_CATALOG_GENERATE_SYMBOLS: YES
         SWIFT_APPROACHABLE_CONCURRENCY: YES

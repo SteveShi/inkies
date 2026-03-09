@@ -14,6 +14,25 @@ struct InkSnippet {
     var localizedName: String {
         String(localized: String.LocalizationValue(name))
     }
+
+    static func fromFile(name: String, filename: String) -> InkSnippet {
+        // Search more broadly for the resource
+        let possibleUrls = [
+            Bundle.main.url(forResource: filename, withExtension: "ink", subdirectory: "Examples"),
+            Bundle.main.url(forResource: filename, withExtension: "ink"),
+            Bundle.main.url(forResource: "Resources/Examples/\(filename)", withExtension: "ink"),
+            Bundle.main.url(forResource: "Examples/\(filename)", withExtension: "ink")
+        ]
+        
+        let url = possibleUrls.compactMap { $0 }.first
+
+        if let url = url, let content = try? String(contentsOf: url, encoding: .utf8) {
+            return InkSnippet(name: name, ink: content)
+        }
+        
+        print("INKIES DEBUG: Failed to load snippet file: \(filename).ink")
+        return InkSnippet(name: name, ink: "// Error: Could not load \(filename).ink from bundle. Please check if the file is included in the project resources.")
+    }
 }
 
 struct InkSnippetCategory {
@@ -424,71 +443,11 @@ struct InkSnippets {
     static let fullStories = InkSnippetCategory(
         name: "Full stories",
         snippets: [
-            InkSnippet(
-                name: "Crime Scene (from Writing with Ink)",
-                ink: """
-                    // Crime Scene - A simple interactive mystery
-                    VAR found_clues = 0
-
-                    === start ===
-                    The room was dark, save for the single pool of light around the body.
-
-                    * [Examine the body]
-                        -> examine_body
-                    * [Look around the room]
-                        -> look_around
-                    * {found_clues >= 2} [Make an accusation]
-                        -> accusation
-
-                    === examine_body ===
-                    ~ found_clues++
-                    The victim was a middle-aged man. There was a strange mark on his neck.
-                    -> start
-
-                    === look_around ===
-                    ~ found_clues++
-                    You notice a half-empty wine glass on the table.
-                    -> start
-
-                    === accusation ===
-                    "It was poison in the wine!" you declare.
-                    -> END
-
-                    """
-            ),
-            InkSnippet(
-                name: "Simple Dialogue Example",
-                ink: """
-                    // Simple dialogue with choices
-                    VAR player_name = "Stranger"
-
-                    === start ===
-                    An old man looks up as you enter.
-                    "Ah, a visitor! What brings you to my shop?"
-
-                    * "I'm just browsing."
-                        "Take your time, {player_name}."
-                        -> shop_browse
-                    * "I'm looking for something specific."
-                        "Oh? And what might that be?"
-                        -> shop_specific
-                    * "Who are you?"
-                        "Me? I'm just an old shopkeeper. Been here for 40 years."
-                        -> start
-
-                    === shop_browse ===
-                    You look around the cluttered shelves.
-                    -> END
-
-                    === shop_specific ===
-                    * "A magic sword."
-                        "Hmm, I might have one somewhere..."
-                    * "A healing potion."
-                        "Ah yes, very popular item!"
-                    - -> END
-
-                    """
-            ),
+            InkSnippet.fromFile(name: "The Intercept (Inky Example)", filename: "theintercept"),
+            InkSnippet.fromFile(name: "Swindlestones (Inky Example)", filename: "swindlestones"),
+            InkSnippet.fromFile(name: "Murder Scene (Inky Example)", filename: "murder_scene"),
+            InkSnippet.fromFile(name: "Crime Scene (Original)", filename: "crime_scene"),
+            InkSnippet.fromFile(name: "Dialogue Example (Original)", filename: "dialogue_example"),
         ]
     )
 

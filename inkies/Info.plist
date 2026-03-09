@@ -5,8 +5,8 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeIconSystemGenerated</key>
-			<true/>
+			<key>CFBundleTypeIconFile</key>
+			<string>InkIcon</string>
 			<key>CFBundleTypeName</key>
 			<string>Ink Source</string>
 			<key>CFBundleTypeRole</key>
@@ -30,7 +30,10 @@
 			<key>UTTypeDescription</key>
 			<string>Ink Source</string>
 			<key>UTTypeIcons</key>
-			<dict/>
+			<dict>
+				<key>UTTypeIconBadgeName</key>
+				<string>InkIcon</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>com.inkle.ink</string>
 			<key>UTTypeTagSpecification</key>

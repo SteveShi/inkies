@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.7.0 (2026-03-09)
+
+### 🆕 New Features
+- **Ink Syntax Checking**: Integrated real-time syntax validation. Errors and warnings are now visually marked with red and yellow indicators in the line number ruler.
+- **Improved Line Number Ruler**: Refined the ruler with a clean, minimalist design as per user feedback, providing better spacing and readability.
+
+### 🛠 Stability & Refined UI
+- **Enhanced Rendering**: Fixed a critical issue where the editor text would sometimes disappear due to background rendering interference.
+- **Empty State Logic**: Improved navigation behavior to properly clear the editor and selection when all documents are deleted.
+- **Project Structure**: Resolved file scope issues and regenerated the Xcode project to ensure all new models (like `InkIssue`) are correctly included.
+
 ## 0.6.2 (2026-02-12)
 
 ### 🐞 Bug Fixes
