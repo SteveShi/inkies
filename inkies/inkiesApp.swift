@@ -42,13 +42,13 @@ struct inkiesApp: App {
     @AppStorage("appTheme") private var appTheme: AppTheme = .light
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "main") {
             ContentView()
                 .preferredColorScheme(appTheme.colorScheme)
                 .environment(\.whatsNew, WhatsNewEnvironment(
                     whatsNewCollection: [
                         WhatsNew(
-                                version: "0.7.0",
+                                version: "0.7.1",
                                 title: WhatsNew.Title(
                                     text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
                             features: [

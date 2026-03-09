@@ -211,8 +211,6 @@ func generateHTML(
                     }
 
                     function continueStory() {
-                        var wasAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50;
-                        
                         while(story.canContinue) {
                             var text = story.Continue();
                             var tags = story.currentTags;
@@ -232,10 +230,6 @@ func generateHTML(
                             end.classList.add('end-marker');
                             end.innerHTML = "&mdash; End &mdash;";
                             storyContainer.appendChild(end);
-                        }
-                        
-                        if (wasAtBottom) {
-                            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                         }
                     }
 

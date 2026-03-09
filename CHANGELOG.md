@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.7.1 (2026-03-10)
+
+### 🛠 Refined UI & Experience
+- **Window State Recovery**: The application now remembers its window size and position across launches.
+- **Improved Preview Navigation**: Disabled auto-scroll to the bottom in the rendering window during content editing to prevent interference with reading/editing.
+
 ## 0.7.0 (2026-03-09)
 
 ### 🆕 New Features
