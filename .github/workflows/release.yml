@@ -41,7 +41,7 @@ jobs:
 
   build:
     needs: check
-    if: needs.check.outputs.skip != 'true'
+    if: github.event_name == 'workflow_dispatch' || needs.check.outputs.skip != 'true'
     runs-on: macos-latest
     permissions:
       contents: write
