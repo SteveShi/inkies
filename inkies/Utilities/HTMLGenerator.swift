@@ -173,7 +173,7 @@ func generateHTML(
                             }
                         });
 
-                        p.innerText = obj.text;
+                        p.innerHTML = obj.text;
                         
                         // Show other tags? 
                         // User thinks rendering #title as text is "obviously wrong".
@@ -196,7 +196,7 @@ func generateHTML(
                         choices.forEach(function(choice) {
                             var a = document.createElement('a');
                             a.classList.add('choice');
-                            a.innerText = choice.text;
+                            a.innerHTML = choice.text;
                             a.onclick = function() {
                                 makeChoice(choice.index);
                             };

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.7.2 (2026-03-10)
+
+### 🆕 New Features
+- **HTML Formatting Support**: The story preview now correctly renders standard HTML tags like `<i>` and `<b>` for italicized and bold text.
+
+### 🛠 Refined UI & Fixes
+- **Project Structure**: Resolved a spec validation error where `InkIcon.png` was missing by updating the reference to `InkIcon.icns`.
+
 ## 0.7.1 (2026-03-10)
 
 ### 🛠 Refined UI & Experience

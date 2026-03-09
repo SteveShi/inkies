@@ -48,14 +48,14 @@ struct inkiesApp: App {
                 .environment(\.whatsNew, WhatsNewEnvironment(
                     whatsNewCollection: [
                         WhatsNew(
-                                version: "0.7.1",
+                                version: "0.7.2",
                                 title: WhatsNew.Title(
                                     text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
                             features: [
                                 .init(
-                                        image: .init(systemName: "exclamationmark.triangle"),
+                                        image: .init(systemName: "checkmark.seal"),
                                         title: WhatsNew.Text(
-                                            String(localized: "Syntax Checking")),
+                                            String(localized: "Ink Syntax Checking")),
                                         subtitle: WhatsNew.Text(
                                             String(
                                                 localized:
@@ -63,22 +63,22 @@ struct inkiesApp: App {
                                             ))
                                 ),
                                 .init(
-                                        image: .init(systemName: "list.number"),
-                                        title: WhatsNew.Text(String(localized: "Refined Ruler")),
+                                        image: .init(systemName: "text.format"),
+                                        title: WhatsNew.Text(String(localized: "HTML Formatting")),
                                         subtitle: WhatsNew.Text(
                                             String(
                                                 localized:
-                                                    "Clean, minimalist line number display for improved focus and readability."
+                                                    "Support for italicized and bold text in the story preview using standard HTML tags."
                                             ))
                                     ),
                                     .init(
-                                        image: .init(systemName: "checkmark.circle"),
+                                        image: .init(systemName: "window.badge.clock"),
                                         title: WhatsNew.Text(
-                                            String(localized: "Stability Fixes")),
+                                            String(localized: "Window State Recovery")),
                                         subtitle: WhatsNew.Text(
                                             String(
                                                 localized:
-                                                    "Resolved rendering issues and improved document deletion behavior."
+                                                    "The application now remembers its window size and position across launches."
                                             ))
                                     ),
                                 ],
