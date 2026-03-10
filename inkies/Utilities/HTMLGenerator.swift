@@ -267,20 +267,33 @@ func generateHTML(
                     window.undoStory = function() {
                         if (choiceHistory.length > 0) {
                             choiceHistory.pop();
-                            // Deep reset and replay to rebuild state exactly
-                            loadStory(storyContent, false); 
+                            
+                            // 1. Reinitialize the engine from base
+                            story = new inkjs.Story(storyContent);
+                            
+                            // 2. Clear visual and history tracking
+                            storyLog = [];
                             var targetHistory = [...choiceHistory];
-                            choiceHistory = []; // Reset during replay
+                            choiceHistory = []; 
+                            
+                            // 3. Play forward to rebuild state
+                            // First chunk of text before any choices
+                            while(story.canContinue) {
+                                var t = story.Continue();
+                                storyLog.push({text: t, tags: story.currentTags});
+                            }
+                            
+                            // Replay each historical choice
                             targetHistory.forEach(idx => {
                                 story.ChooseChoiceIndex(idx);
                                 choiceHistory.push(idx);
-                                // We don't use continueStory here to avoid flicker, 
-                                // just catch up the internal state
-                                while(story.canContinue) { 
+                                while(story.canContinue) {
                                     var t = story.Continue();
                                     storyLog.push({text: t, tags: story.currentTags});
                                 }
                             });
+                            
+                            // 4. Render the reconstructed state
                             clearStory();
                             storyLog.forEach(renderElement);
                             renderChoices(story.currentChoices);

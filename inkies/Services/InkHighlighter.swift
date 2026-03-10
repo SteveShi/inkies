@@ -9,8 +9,8 @@ class InkHighlighter {
         let baseFont = NSFont.monospacedSystemFont(ofSize: 13, weight: .regular)
         let boldFont = NSFont.monospacedSystemFont(ofSize: 13, weight: .bold)
 
-        // Default style
-        let defaultColor = theme == .dark ? NSColor.textColor : NSColor.textColor
+        // Default style - Explicitly handle dark mode to fix invisible text bug
+        let defaultColor: NSColor = theme == .dark ? .white : .black
         attributedString.addAttribute(.font, value: baseFont, range: range)
         attributedString.addAttribute(.foregroundColor, value: defaultColor, range: range)
 

@@ -11,6 +11,16 @@
         }
       }
     },
+    "A beautiful native macOS layout with side-by-side editor, preview, and sidebar." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "精美的原生 macOS 布局，侧边栏、编辑器与预览界面并排显示。"
+          }
+        }
+      }
+    },
     "Add Item" : {
       "localizations" : {
         "zh-Hans" : {
@@ -128,7 +138,14 @@
       }
     },
     "Clean, minimalist line number display for improved focus and readability." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简洁利落的行号显示，提升专注度与可读性。"
+          }
+        }
+      }
     },
     "Close" : {
       "localizations" : {
@@ -308,6 +325,7 @@
       }
     },
     "Export Options" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -339,6 +357,7 @@
       }
     },
     "Export your stories to JSON or Web (HTML)." : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -354,6 +373,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "导出..."
+          }
+        }
+      }
+    },
+    "Fixed missing titlebar separators and improved overall window visual hierarchy." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修复了缺失的标题栏分隔线，并优化了窗口的整体视觉层级。"
+          }
+        }
+      }
+    },
+    "Fixed Undo Logic" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修复撤销逻辑"
           }
         }
       }
@@ -456,8 +495,29 @@
         }
       }
     },
+    "HTML Formatting" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HTML 格式支持"
+          }
+        }
+      }
+    },
     "Ink" : {
 
+    },
+    "Ink Syntax Checking" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ink 语法检查"
+          }
+        }
+      }
     },
     "Inline logic" : {
       "extractionState" : "stale",
@@ -654,6 +714,16 @@
         }
       }
     },
+    "Native Separators" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原生分隔线"
+          }
+        }
+      }
+    },
     "Native syntax highlighting for Ink script while you type." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -737,6 +807,9 @@
         }
       }
     },
+    "Preview" : {
+
+    },
     "Preview Controls" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -802,8 +875,25 @@
         }
       }
     },
+    "Refined 3-Column Layout" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "精致三栏布局"
+          }
+        }
+      }
+    },
     "Refined Ruler" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "精致行号栏"
+          }
+        }
+      }
     },
     "Rename" : {
       "localizations" : {
@@ -826,7 +916,14 @@
       }
     },
     "Resolved rendering issues and improved document deletion behavior." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解决了渲染问题并优化了文档删除行为。"
+          }
+        }
+      }
     },
     "Restart" : {
       "localizations" : {
@@ -911,7 +1008,14 @@
       }
     },
     "Stability Fixes" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "稳定性修复"
+          }
+        }
+      }
     },
     "Sticky choice" : {
       "extractionState" : "stale",
@@ -956,6 +1060,16 @@
         }
       }
     },
+    "Support for italicized and bold text in the story preview using standard HTML tags." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支持在故事预览中使用标准 HTML 标签显示斜体和加粗文本。"
+          }
+        }
+      }
+    },
     "Swindlestones (Inky Example)" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -979,7 +1093,14 @@
       }
     },
     "Syntax Checking" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语法检查"
+          }
+        }
+      }
     },
     "Tags visible" : {
       "localizations" : {
@@ -1002,6 +1123,16 @@
         }
       }
     },
+    "The application now remembers its window size and position across launches." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用程序现在可以在启动时记住并恢复窗口的大小和位置。"
+          }
+        }
+      }
+    },
     "The Intercept (Inky Example)" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1009,6 +1140,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "拦截 (Inky 示例)"
+          }
+        }
+      }
+    },
+    "The Undo button now correctly reverts your choices while preserving the story log." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销按钮现在可以正确回退选择，并完整保留故事日志记录。"
           }
         }
       }
@@ -1088,11 +1229,32 @@
       }
     },
     "Version 0.5.0" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "版本 0.5.0"
+          }
+        }
+      }
+    },
+    "Version 0.7.0" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本 0.7.0"
+          }
+        }
+      }
+    },
+    "Version 0.7.2" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版本 0.7.2"
           }
         }
       }
@@ -1103,6 +1265,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inkies 的新功能"
+          }
+        }
+      }
+    },
+    "Window State Recovery" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "窗口状态恢复"
           }
         }
       }
@@ -1123,56 +1295,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "字数"
-          }
-        }
-      }
-    },
-    "Ink Syntax Checking" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ink 语法检查"
-          }
-        }
-      }
-    },
-    "HTML Formatting" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HTML 格式支持"
-          }
-        }
-      }
-    },
-    "Support for italicized and bold text in the story preview using standard HTML tags." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "支持在故事预览中使用标准 HTML 标签显示斜体和加粗文本。"
-          }
-        }
-      }
-    },
-    "Window State Recovery" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "窗口状态恢复"
-          }
-        }
-      }
-    },
-    "The application now remembers its window size and position across launches." : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "应用程序现在可以在启动时记住并恢复窗口的大小和位置。"
           }
         }
       }

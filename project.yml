@@ -73,7 +73,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_STYLE: Automatic
         COMBINE_HIDPI_IMAGES: YES
-        CURRENT_PROJECT_VERSION: 407
+        CURRENT_PROJECT_VERSION: 408
         DEVELOPMENT_TEAM: W7A747LNTR
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: YES
@@ -84,7 +84,7 @@ targets:
         LD_RUNPATH_SEARCH_PATHS:
           - $(inherited)
           - "@executable_path/../Frameworks"
-        MARKETING_VERSION: 0.7.2
+        MARKETING_VERSION: 0.7.3
         PRODUCT_BUNDLE_IDENTIFIER: listentotherain.inkies
         STRING_CATALOG_GENERATE_SYMBOLS: YES
         SWIFT_APPROACHABLE_CONCURRENCY: YES

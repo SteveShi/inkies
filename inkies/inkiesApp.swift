@@ -48,61 +48,66 @@ struct inkiesApp: App {
                 .environment(\.whatsNew, WhatsNewEnvironment(
                     whatsNewCollection: [
                         WhatsNew(
-                                version: "0.7.2",
-                                title: WhatsNew.Title(
-                                    text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
+                            version: "0.7.3",
+                            title: WhatsNew.Title(
+                                text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
                             features: [
                                 .init(
-                                        image: .init(systemName: "checkmark.seal"),
-                                        title: WhatsNew.Text(
-                                            String(localized: "Ink Syntax Checking")),
-                                        subtitle: WhatsNew.Text(
-                                            String(
-                                                localized:
-                                                    "Real-time Ink syntax validation with visual error and warning markers."
-                                            ))
+                                    image: .init(systemName: "sidebar.left"),
+                                    title: WhatsNew.Text(String(localized: "Refined 3-Column Layout")),
+                                    subtitle: WhatsNew.Text(String(localized: "A beautiful native macOS layout with side-by-side editor, preview, and sidebar."))
                                 ),
                                 .init(
-                                        image: .init(systemName: "text.format"),
-                                        title: WhatsNew.Text(String(localized: "HTML Formatting")),
-                                        subtitle: WhatsNew.Text(
-                                            String(
-                                                localized:
-                                                    "Support for italicized and bold text in the story preview using standard HTML tags."
-                                            ))
-                                    ),
-                                    .init(
-                                        image: .init(systemName: "window.badge.clock"),
-                                        title: WhatsNew.Text(
-                                            String(localized: "Window State Recovery")),
-                                        subtitle: WhatsNew.Text(
-                                            String(
-                                                localized:
-                                                    "The application now remembers its window size and position across launches."
-                                            ))
-                                    ),
-                                ],
-                                primaryAction: .init(
-                                    title: WhatsNew.Text(String(localized: "Continue"))
+                                    image: .init(systemName: "arrow.uturn.backward"),
+                                    title: WhatsNew.Text(String(localized: "Fixed Undo Logic")),
+                                    subtitle: WhatsNew.Text(String(localized: "The Undo button now correctly reverts your choices while preserving the story log."))
+                                ),
+                                .init(
+                                    image: .init(systemName: "menubar.rectangle"),
+                                    title: WhatsNew.Text(String(localized: "Native Separators")),
+                                    subtitle: WhatsNew.Text(String(localized: "Fixed missing titlebar separators and improved overall window visual hierarchy."))
                                 )
-                            ),
-                            WhatsNew(
-                                version: "0.5.0",
-                                title: WhatsNew.Title(
-                                    text: WhatsNew.Text(String(localized: "Version 0.5.0"))),
-                                features: [
-                                    .init(
-                                        image: .init(systemName: "square.and.arrow.up"),
-                                        title: WhatsNew.Text(String(localized: "Export Options")),
-                                        subtitle: WhatsNew.Text(
-                                            String(
-                                                localized:
-                                                    "Export your stories to JSON or Web (HTML)."))
+                            ],
+                            primaryAction: .init(title: WhatsNew.Text(String(localized: "Continue")))
+                        ),
+                        WhatsNew(
+                            version: "0.7.2",
+                            title: WhatsNew.Title(text: WhatsNew.Text(String(localized: "Version 0.7.2"))),
+                            features: [
+                                .init(
+                                    image: .init(systemName: "text.format"),
+                                    title: WhatsNew.Text(String(localized: "HTML Formatting")),
+                                    subtitle: WhatsNew.Text(String(localized: "Support for italicized and bold text in the story preview using standard HTML tags."))
+                                ),
+                                .init(
+                                    image: .init(systemName: "window.badge.clock"),
+                                    title: WhatsNew.Text(String(localized: "Window State Recovery")),
+                                    subtitle: WhatsNew.Text(String(localized: "The application now remembers its window size and position across launches."))
                                 )
-                                ],
-                                primaryAction: .init(
-                                    title: WhatsNew.Text(String(localized: "Continue"))
+                            ],
+                            primaryAction: .init(title: WhatsNew.Text(String(localized: "Continue")))
+                        ),
+                        WhatsNew(
+                            version: "0.7.0",
+                            title: WhatsNew.Title(text: WhatsNew.Text(String(localized: "Version 0.7.0"))),
+                            features: [
+                                .init(
+                                    image: .init(systemName: "checkmark.seal"),
+                                    title: WhatsNew.Text(String(localized: "Syntax Checking")),
+                                    subtitle: WhatsNew.Text(String(localized: "Real-time Ink syntax validation with visual error and warning markers."))
+                                ),
+                                .init(
+                                    image: .init(systemName: "text.justify.left"),
+                                    title: WhatsNew.Text(String(localized: "Refined Ruler")),
+                                    subtitle: WhatsNew.Text(String(localized: "Clean, minimalist line number display for improved focus and readability."))
+                                ),
+                                .init(
+                                    image: .init(systemName: "hammer.fill"),
+                                    title: WhatsNew.Text(String(localized: "Stability Fixes")),
+                                    subtitle: WhatsNew.Text(String(localized: "Resolved rendering issues and improved document deletion behavior."))
                                 )
+                            ],
+                            primaryAction: .init(title: WhatsNew.Text(String(localized: "Continue")))
                         )
                     ]
                 ))

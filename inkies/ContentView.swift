@@ -191,10 +191,18 @@ struct ContentView: View {
             }
     }
 
+    // MARK: - Editor State
+    @State private var previewContent: String = ""
+    @State private var lastCompiledContent: String = ""
+    @State private var inkIssues: [InkIssue] = []
+    @State private var debounceTask: Task<Void, Never>?
+    @State private var compilationTask: Task<Void, Never>?
+    @StateObject private var webViewHandler = WebViewActionHandler()
+
     private var navigationSplitView: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: .constant(.all)) {
             sidebarView
-                .navigationSplitViewColumnWidth(min: 180, ideal: 200)
+                .navigationSplitViewColumnWidth(min: 150, ideal: 200, max: 250)
                 .toolbar {
                     ToolbarItem(placement: .navigation) {
                         Button(action: addItem) {
@@ -212,13 +220,57 @@ struct ContentView: View {
                     }
                     Button(String(localized: "Cancel"), role: .cancel) {}
                 }
+        } content: {
+            Group {
+                if let selection {
+                    editorColumnView(for: selection)
+                } else {
+                    Text(String(localized: "Select a document"))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .navigationSplitViewColumnWidth(min: 300, ideal: 400, max: .infinity)
         } detail: {
-            detailView
+            Group {
+                if selection != nil {
+                    previewColumnView
+                } else {
+                    Color.clear
+                }
+            }
+            .navigationSplitViewColumnWidth(min: 300, ideal: 400, max: .infinity)
+            .toolbar {
+                // Placing toolbar in detail makes macOS draw the separator between Editor and Preview
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button(action: { webViewHandler.undo() }) {
+                        Label(String(localized: "Undo"), systemImage: "arrow.uturn.backward")
+                    }
+                    .help(String(localized: "Return to previous branch"))
+                    .disabled(selection == nil)
+                    
+                    Button(action: { webViewHandler.restart() }) {
+                        Label(String(localized: "Restart"), systemImage: "arrow.counterclockwise")
+                    }
+                    .help(String(localized: "Restart story"))
+                    .disabled(selection == nil)
+                }
+                
+                mainToolbar
+            }
         }
-        .toolbar {
-            mainToolbar
+        .navigationSplitViewStyle(.balanced)
+        .onChange(of: selection) { oldValue, newValue in
+            // Handle document switch
+            debounceTask?.cancel()
+            compilationTask?.cancel()
+            if let newItem = newValue {
+                compileContent(newItem.content)
+            } else {
+                previewContent = ""
+                lastCompiledContent = ""
+                inkIssues = []
+            }
         }
-        .toolbarBackground(.visible, for: .windowToolbar)
     }
 
     // MARK: - Subviews
@@ -258,31 +310,7 @@ struct ContentView: View {
         }
     }
 
-    @ViewBuilder
-    private var detailView: some View {
-        if let item = selection {
-            EditorView(item: item)
-                .id(item.id)  // Force recreation when item changes
-                .onReceive(
-                    NotificationCenter.default.publisher(for: Notification.Name("ExportInk"))
-                ) { _ in
-                    prepareExportInk(item)
-                }
-                .onReceive(
-                    NotificationCenter.default.publisher(for: Notification.Name("ExportJSON"))
-                ) { _ in
-                    Task { await prepareExportJson(item) }
-                }
-                .onReceive(
-                    NotificationCenter.default.publisher(for: Notification.Name("ExportWeb"))
-                ) { _ in
-                    Task { await prepareExportWeb(item) }
-                }
-        } else {
-            Text(String(localized: "Select a document"))
-                .foregroundColor(.secondary)
-        }
-    }
+
 
     @ToolbarContentBuilder
     private var mainToolbar: some ToolbarContent {
@@ -418,6 +446,65 @@ struct ContentView: View {
                 modelContext.delete(item)
             }
             try? modelContext.save()
+        }
+    }
+
+    // MARK: - Column Views
+
+    @ViewBuilder
+    private func editorColumnView(for item: Item) -> some View {
+        @Bindable var bindableItem = item
+        InkTextView(text: $bindableItem.content, issues: inkIssues)
+            // Critical for NSViewRepresentable inside NavigationSplitView column
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Use layoutPriority to prevent 0-height collapse
+            .layoutPriority(1)
+            .navigationTitle(item.title.isEmpty ? String(localized: "Untitled") : item.title)
+    }
+
+    @ViewBuilder
+    private var previewColumnView: some View {
+        WebView(content: $previewContent, 
+                lastCompiledContent: $lastCompiledContent,
+                actionHandler: webViewHandler)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .layoutPriority(1)
+            .background(
+                appTheme == .dark ? Color(red: 0.118, green: 0.118, blue: 0.118) : .white)
+            .navigationTitle(String(localized: "Preview"))
+    }
+
+    private func compileContent(_ content: String) {
+        compilationTask?.cancel()
+        compilationTask = Task {
+            do {
+                let json = try await InkCompiler.shared.compile(content)
+                if !Task.isCancelled {
+                    await MainActor.run {
+                        self.previewContent = json
+                        if webViewHandler.isReady {
+                            webViewHandler.update(json: json)
+                        }
+                        self.lastCompiledContent = content
+                    }
+                }
+            } catch {
+                if !Task.isCancelled {
+                    let issues = await InkCompiler.shared.analyzeIssues(content)
+                    await MainActor.run {
+                        self.previewContent = "COMPILER_ERROR: \(error.localizedDescription)"
+                        self.lastCompiledContent = content
+                        self.inkIssues = issues
+                    }
+                }
+            }
+            
+            if !Task.isCancelled {
+                let issues = await InkCompiler.shared.analyzeIssues(content)
+                await MainActor.run {
+                    self.inkIssues = issues
+                }
+            }
         }
     }
 

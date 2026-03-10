@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.7.3 (2026-03-10)
+
+### 🛠 macOS UI & Logic Restoration
+- **Native 3-Column Layout**: Fully restored the macOS three-column architecture (Sidebar | Editor | Preview).
+- **Titlebar Separators**: Fixed an issue where titlebar separators would disappear by correctly positioning toolbars and removing conflicting modifiers.
+- **Improved Button Layout**: Consolidated all primary actions (Undo, Restart, Search, Export) to the right-most preview column for a cleaner user experience.
+- **Undo Logic Fix**: Resolved a critical bug where the "Undo" action in the preview functioned identical to "Restart". It now correctly re-renders the previous story state.
+- **Symmetric Layout**: Balanced the default width of the editor and preview columns.
+
 ## 0.7.2 (2026-03-10)
 
 ### 🆕 New Features
