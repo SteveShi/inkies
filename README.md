@@ -28,6 +28,13 @@
    - You can install it via Homebrew: `brew install inkle/inkle/inklecate`
    - *Alternative*: Drag the `inklecate` binary directly into the Xcode project bundle.
 
+### Homebrew
+Install via Homebrew tap:
+```bash
+brew tap lpgneg19/tap
+brew install --cask inkies
+```
+
 ### Installation
 
 1. Clone the repository:
