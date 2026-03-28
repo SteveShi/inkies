@@ -88,10 +88,16 @@
 		<string>en</string>
 		<string>zh_CN</string>
 	</array>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://lpgneg19.github.io/inkies/appcast.xml</string>
+	<string>https://github.com/lpgneg19/inkies/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>MkHAeSDd//tR7+jzLDuwomA0aHHe5+35hbQ4csagwF0=</string>
 	<key>SUScheduledCheckInterval</key>
