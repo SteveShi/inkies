@@ -88,13 +88,3 @@
 		<string>en</string>
 		<string>zh_CN</string>
 	</array>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUFeedURL</key>
-	<string>https://github.com/lpgneg19/inkies/releases/latest/download/appcast.xml</string>
-	<key>SUPublicEDKey</key>
-	<string>MkHAeSDd//tR7+jzLDuwomA0aHHe5+35hbQ4csagwF0=</string>
-	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
-</dict>
-</plist>
