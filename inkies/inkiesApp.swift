@@ -40,6 +40,7 @@ struct inkiesApp: App {
     @Environment(\.modelContext) private var modelContext // Add context for manual save if needed
 
     @AppStorage("appTheme") private var appTheme: AppTheme = .light
+    @State private var updater = SparkleUpdater()
 
     var body: some Scene {
         WindowGroup(id: "main") {
@@ -47,6 +48,24 @@ struct inkiesApp: App {
                 .preferredColorScheme(appTheme.colorScheme)
                 .environment(\.whatsNew, WhatsNewEnvironment(
                     whatsNewCollection: [
+                        WhatsNew(
+                            version: "1.0.0",
+                            title: WhatsNew.Title(
+                                text: WhatsNew.Text(String(localized: "Inkies 1.0"))),
+                            features: [
+                                .init(
+                                    image: .init(systemName: "arrow.clockwise.circle"),
+                                    title: WhatsNew.Text(String(localized: "Sparkle Updates")),
+                                    subtitle: WhatsNew.Text(String(localized: "Stay up to date with the latest features and fixes automatically."))
+                                ),
+                                .init(
+                                    image: .init(systemName: "star.fill"),
+                                    title: WhatsNew.Text(String(localized: "Stable Release")),
+                                    subtitle: WhatsNew.Text(String(localized: "Inkies is now officially 1.0! Thank you for your support."))
+                                )
+                            ],
+                            primaryAction: .init(title: WhatsNew.Text(String(localized: "Continue")))
+                        ),
                         WhatsNew(
                             version: "0.7.3",
                             title: WhatsNew.Title(
@@ -127,6 +146,13 @@ struct inkiesApp: App {
             }
         }
         .commands {
+            CommandGroup(after: .appInfo) {
+                Button(String(localized: "Check for Updates...")) {
+                    updater.checkForUpdates()
+                }
+                .disabled(!updater.canCheckForUpdates)
+            }
+
             CommandGroup(replacing: .newItem) {
                 Button(String(localized: "New Ink File")) {
                     NotificationCenter.default.post(

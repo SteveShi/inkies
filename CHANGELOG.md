@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-03-29
+
+### Added
+- **Sparkle Support**: Integrated Sparkle for automated, secure in-app updates.
+- **Version 1.0**: Officially reaching the stable release milestone.
+- **Improved UX**: Added "Check for Updates..." to the application menu and updated the onboarding experience.
+
+---
+
+### Chinese
+### 新功能
+- **Sparkle 支持**: 集成了 Sparkle 框架，支持安全且自动的应用内更新。
+- **1.0 版本**: 正式达到稳定发布里程碑。
+- **用户体验优化**: 在应用菜单中增加了“检查更新...”选项，并更新了新版本特性展示。
+
 ## 0.7.3 (2026-03-10)
 
 ### 🛠 macOS UI & Logic Restoration

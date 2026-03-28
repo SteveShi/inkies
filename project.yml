@@ -5,6 +5,9 @@ packages:
   WhatsNewKit:
     url: https://github.com/SvenTiigi/WhatsNewKit
     from: 2.2.1
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.9.0
 targets:
   inkies:
     type: application
@@ -67,24 +70,25 @@ targets:
         buildPhase: resources
     dependencies:
       - package: WhatsNewKit
+      - package: Sparkle
+        product: Sparkle
     settings:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_STYLE: Automatic
         COMBINE_HIDPI_IMAGES: YES
-        CURRENT_PROJECT_VERSION: 408
+        CURRENT_PROJECT_VERSION: 100
         DEVELOPMENT_TEAM: W7A747LNTR
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: YES
         ENABLE_PREVIEWS: YES
-        GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: inkies/Info.plist
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.productivity"
         LD_RUNPATH_SEARCH_PATHS:
           - $(inherited)
           - "@executable_path/../Frameworks"
-        MARKETING_VERSION: 0.7.3
+        MARKETING_VERSION: 1.0.0
         PRODUCT_BUNDLE_IDENTIFIER: listentotherain.inkies
         STRING_CATALOG_GENERATE_SYMBOLS: YES
         SWIFT_APPROACHABLE_CONCURRENCY: YES
