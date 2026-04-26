@@ -193,7 +193,6 @@ struct ContentView: View {
 
     // MARK: - Editor State
     @State private var previewContent: String = ""
-    @State private var lastCompiledContent: String = ""
     @State private var inkIssues: [InkIssue] = []
     @State private var debounceTask: Task<Void, Never>?
     @State private var compilationTask: Task<Void, Never>?
@@ -267,7 +266,6 @@ struct ContentView: View {
                 compileContent(newItem.content)
             } else {
                 previewContent = ""
-                lastCompiledContent = ""
                 inkIssues = []
             }
         }
@@ -464,9 +462,7 @@ struct ContentView: View {
 
     @ViewBuilder
     private var previewColumnView: some View {
-        WebView(content: $previewContent, 
-                lastCompiledContent: $lastCompiledContent,
-                actionHandler: webViewHandler)
+        WebView(content: $previewContent, actionHandler: webViewHandler)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .layoutPriority(1)
             .background(
@@ -485,16 +481,12 @@ struct ContentView: View {
                         if webViewHandler.isReady {
                             webViewHandler.update(json: json)
                         }
-                        self.lastCompiledContent = content
                     }
                 }
             } catch {
                 if !Task.isCancelled {
-                    let issues = await InkCompiler.shared.analyzeIssues(content)
                     await MainActor.run {
                         self.previewContent = "COMPILER_ERROR: \(error.localizedDescription)"
-                        self.lastCompiledContent = content
-                        self.inkIssues = issues
                     }
                 }
             }

@@ -71,45 +71,13 @@ actor InkCompiler {
     private var currentProcess: Process?
     private var hasCheckedResources = false
 
-    // Potential paths for inklecate
-    private let possiblePaths = [
-        "/opt/homebrew/bin/inklecate",
-        "/usr/local/bin/inklecate",
-    ]
-
-    private var isCompiling = false
     private var pendingCompilation: Task<String, Error>?
 
     func findInklecate() -> String? {
-        
-        // 1. Check App Bundle Resources/Compiler (Preferred)
+        // Only use bundled compiler to avoid legacy fallback branches.
         if let bundledPath = Bundle.main.path(forResource: "inklecate", ofType: nil, inDirectory: "Compiler") {
             print("INKIES DEBUG: Found inklecate in Resources/Compiler: \(bundledPath)")
             return verifiedPath(bundledPath)
-        }
-
-        // 2. Check App Bundle Resources (Flat fallback)
-        if let bundledPath = Bundle.main.path(forResource: "inklecate", ofType: nil) {
-            print("INKIES DEBUG: Found inklecate in Resources (flat): \(bundledPath)")
-            return verifiedPath(bundledPath)
-        }
-
-        // 3. Check App Bundle Contents/MacOS (Backup location)
-        if let execPath = Bundle.main.executablePath {
-            let binDir = URL(fileURLWithPath: execPath).deletingLastPathComponent()
-            let bundleBin = binDir.appendingPathComponent("inklecate").path
-            if FileManager.default.fileExists(atPath: bundleBin) {
-                print("INKIES DEBUG: Found inklecate in Contents/MacOS: \(bundleBin)")
-                return verifiedPath(bundleBin)
-            }
-        }
-
-        // 4. System paths
-        for path in possiblePaths {
-            if FileManager.default.fileExists(atPath: path) {
-                print("INKIES DEBUG: Found inklecate in system path: \(path)")
-                return verifiedPath(path)
-            }
         }
 
         print("INKIES DEBUG: ERROR - inklecate NOT found in any search location")
@@ -221,7 +189,7 @@ actor InkCompiler {
                 print("INKIES DEBUG: inklecate exists in Compiler/: \(inklecateExists)")
                 if inklecateExists {
                     let isExec = FileManager.default.isExecutableFile(
-                        atPath: resURL.appendingPathComponent("inklecate").path)
+                        atPath: compilerURL.appendingPathComponent("inklecate").path)
                     print("INKIES DEBUG: inklecate is executable: \(isExec)")
                 }
             }

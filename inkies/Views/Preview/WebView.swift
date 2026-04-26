@@ -26,7 +26,6 @@ class WebViewActionHandler: ObservableObject {
 #if os(macOS)
 struct WebView: NSViewRepresentable {
     @Binding var content: String
-    @Binding var lastCompiledContent: String
     @ObservedObject var actionHandler: WebViewActionHandler
 
     func makeNSView(context: Context) -> WKWebView {
@@ -48,11 +47,9 @@ struct WebView: NSViewRepresentable {
 
     func updateNSView(_ nsView: WKWebView, context: Context) {
         if context.coordinator.lastContent != content {
-            let html = generateHTML(
-                for: content, theme: appTheme, enableIncrementalUpdate: true)
+            let html = generateHTML(for: content, theme: appTheme)
             nsView.loadHTMLString(html, baseURL: Bundle.main.bundleURL)
             context.coordinator.lastContent = content
-            context.coordinator.isFirstLoad = false
         }
         actionHandler.webView = nsView
     }
@@ -64,8 +61,6 @@ struct WebView: NSViewRepresentable {
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var parent: WebView
         var lastContent: String = ""
-        var isFirstLoad: Bool = true
-        var isReadyForIncrementalUpdate: Bool = false
 
         init(_ parent: WebView) {
             self.parent = parent
@@ -80,7 +75,6 @@ struct WebView: NSViewRepresentable {
                     let action = body["action"] as? String
                 {
                     if action == "ready" {
-                        self.isFirstLoad = false
                         parent.actionHandler.isReady = true
                     }
                 }
@@ -91,7 +85,6 @@ struct WebView: NSViewRepresentable {
 #else
 struct WebView: UIViewRepresentable {
     @Binding var content: String
-    @Binding var lastCompiledContent: String
     @ObservedObject var actionHandler: WebViewActionHandler
 
     func makeUIView(context: Context) -> WKWebView {
@@ -110,11 +103,9 @@ struct WebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {
         if context.coordinator.lastContent != content {
-            let html = generateHTML(
-                for: content, theme: appTheme, enableIncrementalUpdate: true)
+            let html = generateHTML(for: content, theme: appTheme)
             uiView.loadHTMLString(html, baseURL: Bundle.main.bundleURL)
             context.coordinator.lastContent = content
-            context.coordinator.isFirstLoad = false
         }
         actionHandler.webView = uiView
     }
@@ -126,8 +117,6 @@ struct WebView: UIViewRepresentable {
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var parent: WebView
         var lastContent: String = ""
-        var isFirstLoad: Bool = true
-        var isReadyForIncrementalUpdate: Bool = false
 
         init(_ parent: WebView) {
             self.parent = parent
@@ -142,7 +131,6 @@ struct WebView: UIViewRepresentable {
                     let action = body["action"] as? String
                 {
                     if action == "ready" {
-                        self.isFirstLoad = false
                         parent.actionHandler.isReady = true
                     }
                 }

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - HTML Generator Helpers
 
-// Helper to find the InkJS library
+// Helper to load bundled InkJS library only.
 func getInkScript() -> String {
     if let path = Bundle.main.path(forResource: "ink.min", ofType: "js", inDirectory: "Scripts") {
         if let content = try? String(contentsOfFile: path, encoding: .utf8) {
@@ -15,15 +15,12 @@ func getInkScript() -> String {
                 "<script>console.error('INKIES DEBUG: local ink.min.js found but failed to read');</script>"
         }
     }
-    // Fallback to CDN if local file not found (User needs to add it to bundle)
-    print("INKIES DEBUG: WARNING - local ink.min.js NOT found in bundle, using CDN fallback")
+    print("INKIES DEBUG: ERROR - local ink.min.js NOT found in bundle")
     return
-        #"<script src="https://unpkg.com/inkjs/dist/ink.js"></script><script>console.warn('INKIES DEBUG: local ink.min.js NOT found in bundle, using CDN');</script>"#
+        "<script>console.error('INKIES DEBUG: local ink.min.js NOT found in bundle');</script>"
 }
 
-func generateHTML(
-    for inkContext: String, theme: AppTheme, enableIncrementalUpdate: Bool = false
-) -> String {
+func generateHTML(for inkContext: String, theme: AppTheme) -> String {
     let safeContent = inkContext.replacingOccurrences(of: "\\", with: "\\\\")
         .replacingOccurrences(of: "\"", with: "\\\"")
         .replacingOccurrences(of: "\n", with: "\\n")
