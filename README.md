@@ -31,7 +31,7 @@
 ### Homebrew
 Install via Homebrew tap:
 ```bash
-brew tap lpgneg19/tap
+brew tap SteveShi/tap
 brew install --cask inkies
 ```
 

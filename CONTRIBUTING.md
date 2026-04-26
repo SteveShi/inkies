@@ -31,7 +31,7 @@ Inkies is a modern, native macOS editor for Ink stories, built with SwiftUI and 
 
 2.  **Clone the Repository**:
     ```bash
-    git clone https://github.com/lpgneg19/inkies.git
+    git clone https://github.com/SteveShi/inkies.git
     cd inkies
     ```
 
