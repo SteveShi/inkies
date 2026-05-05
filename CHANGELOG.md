@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-05-05
+
+### Changed
+- **Compiler Update**: Updated the internal `inklecate` compiler to the latest version for improved stability and performance.
+- **Git LFS Integration**: Migrated large binary assets to Git LFS to optimize repository performance.
+
+---
+
+### Chinese
+### 变更
+- **编译器更新**: 将内置的 `inklecate` 编译器更新至最新版本，提升了稳定性和性能。
+- **Git LFS 集成**: 将大型二进制资产迁移至 Git LFS 管理，优化了代码仓库性能。
+
 ## [1.0.0] - 2026-03-29
 
 ### Added
