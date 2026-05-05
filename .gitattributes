@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+inkies/Resources/Compiler/ink-engine-runtime.dll filter=lfs diff=lfs merge=lfs -text
+inkies/Resources/Compiler/ink_compiler.dll filter=lfs diff=lfs merge=lfs -text
+inkies/Resources/Compiler/inklecate filter=lfs diff=lfs merge=lfs -text
