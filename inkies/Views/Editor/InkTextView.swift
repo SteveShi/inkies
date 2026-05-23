@@ -109,6 +109,7 @@ struct InkTextView: NSViewRepresentable {
     class Coordinator: NSObject, NSTextViewDelegate {
         var parent: InkTextView
         var isUpdatingFromWithin = false
+        private var highlightWorkItem: DispatchWorkItem?
 
         init(_ parent: InkTextView) {
             self.parent = parent
@@ -117,35 +118,41 @@ struct InkTextView: NSViewRepresentable {
         func textDidChange(_ notification: Notification) {
             guard let textView = notification.object as? NSTextView else { return }
             let newText = textView.string
-            
+
             isUpdatingFromWithin = true
             parent.text = newText
-            
-            // Re-apply highlighting colors without breaking undo string history
-            // We only update attributes, not characters
-            let highlighted = InkHighlighter.highlight(newText, theme: parent.appTheme)
-            
-            // Disable undo registration for attribute updates
-            textView.undoManager?.disableUndoRegistration()
-            
-            // Apply attributes from highlighting to the existing textStorage
-            let fullRange = NSRange(location: 0, length: textView.textStorage?.length ?? 0)
-            if fullRange.length > 0 {
-                textView.textStorage?.beginEditing()
-                // Clear existing attributes
-                textView.textStorage?.setAttributes([:], range: fullRange)
-                
-                // Copy new attributes
-                highlighted.enumerateAttributes(in: NSRange(location: 0, length: highlighted.length), options: []) { attrs, range, _ in
-                    if range.location + range.length <= (textView.textStorage?.length ?? 0) {
-                        textView.textStorage?.addAttributes(attrs, range: range)
-                    }
-                }
-                textView.textStorage?.endEditing()
-            }
-            
-            textView.undoManager?.enableUndoRegistration()
             isUpdatingFromWithin = false
+
+            // 性能修复:对高亮做 150ms 防抖,避免每次按键都全文枚举属性导致大文档卡顿。
+            highlightWorkItem?.cancel()
+            let theme = parent.appTheme
+            let workItem = DispatchWorkItem { [weak self, weak textView] in
+                guard let self = self, let textView = textView else { return }
+                // textView.string 在主线程读取,确保读到最新文本
+                let current = textView.string
+                let highlighted = InkHighlighter.highlight(current, theme: theme)
+                self.applyAttributes(from: highlighted, to: textView)
+            }
+            highlightWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: workItem)
+        }
+
+        /// 仅复制属性,不触碰字符,避免破坏 undo 历史与插入点位置。
+        private func applyAttributes(from highlighted: NSAttributedString, to textView: NSTextView) {
+            guard let storage = textView.textStorage else { return }
+            let storageLength = storage.length
+            // 字符数若不一致(用户在防抖期间继续输入),放弃这次高亮,等下一次防抖触发
+            guard highlighted.length == storageLength, storageLength > 0 else { return }
+
+            textView.undoManager?.disableUndoRegistration()
+            storage.beginEditing()
+            let fullRange = NSRange(location: 0, length: storageLength)
+            storage.setAttributes([:], range: fullRange)
+            highlighted.enumerateAttributes(in: fullRange, options: []) { attrs, range, _ in
+                storage.addAttributes(attrs, range: range)
+            }
+            storage.endEditing()
+            textView.undoManager?.enableUndoRegistration()
         }
     }
 }

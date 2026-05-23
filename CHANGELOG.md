@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-05-23
+
+### Fixed
+- **Compiler Stability**: Resolved a pipe-buffer deadlock in the Ink compilation pipeline that could hang large story compilations.
+- **Compilation Cache**: Replaced full-text base64 keys with SHA-256 digests to roughly halve cache memory usage.
+
+### Changed
+- **Syntax Highlighter**: Rewrote the rule engine — comments and strings are now applied last so embedded `->`, `"..."` and `#` no longer get mis-colored. Added support for stitches (`= name`), tunnel returns (`->->`), text interpolation `{...}`, glue `<>`, choice labels `(name)` and additional keywords (`INCLUDE`, `EXTERNAL`, `END`, `DONE`, `START`, `true`, `false`, `not`, `and`, `or`, `mod`, `ref`, `return`).
+- **Editor Performance**: Pre-compiled all highlighter regexes as static constants; debounced re-highlighting on text change (150 ms) for smoother large-document editing.
+- **Line Number Ruler**: Cached newline offsets and switched to binary search for the starting line number, removing the per-frame O(N) scan during scroll.
+
+### Added
+- **Syntax Smoke Test**: Bundled `Examples/syntax_smoke_test.ink` covering every supported Ink syntax element for visual regression checks.
+
+---
+
+### Chinese
+### 修复
+- **编译器稳定性**: 修复 Ink 编译流程中管道缓冲区死锁问题,避免大型剧本编译时挂起。
+- **编译缓存**: 将基于全文 base64 的缓存键替换为 SHA-256 摘要,缓存内存占用约减半。
+
+### 变更
+- **语法高亮**: 重写规则引擎——注释与字符串现在最后应用,内部的 `->`、`"..."`、`#` 不再被错误着色。新增对 stitch(`= name`)、tunnel 返回(`->->`)、文本插值 `{...}`、glue `<>`、选项标签 `(name)` 以及更多关键字(`INCLUDE`、`EXTERNAL`、`END`、`DONE`、`START`、`true`、`false`、`not`、`and`、`or`、`mod`、`ref`、`return`)的支持。
+- **编辑器性能**: 所有高亮正则预编译为静态常量;文本变更后的重新高亮加入 150 ms 防抖,大文档编辑更流畅。
+- **行号标尺**: 缓存换行符偏移并改为二分查找起始行号,移除滚动时每帧 O(N) 扫描。
+
+### 新功能
+- **语法回归样例**: 内置 `Examples/syntax_smoke_test.ink`,覆盖所有受支持的 Ink 语法元素,便于人眼回归。
+
 ## [1.0.1] - 2026-05-05
 
 ### Changed

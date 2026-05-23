@@ -12,6 +12,47 @@ class LineNumberRulerView: NSRulerView {
 
     var issues: [InkIssue] = []
 
+    // 缓存换行符位置数组与对应文本长度,避免每次滚动都重新枚举整段前缀文本
+    private var cachedNewlineOffsets: [Int] = []
+    private var cachedTextLength: Int = -1
+    private var cachedTextHash: Int = 0
+
+    /// 二分查找 charIndex 所在行号(行号从 1 开始)
+    private func lineNumber(forCharIndex charIndex: Int) -> Int {
+        // cachedNewlineOffsets 保存的是每个 '\n' 的位置;行号 = 不大于 charIndex 的换行符个数 + 1
+        var lo = 0
+        var hi = cachedNewlineOffsets.count
+        while lo < hi {
+            let mid = (lo + hi) / 2
+            if cachedNewlineOffsets[mid] < charIndex {
+                lo = mid + 1
+            } else {
+                hi = mid
+            }
+        }
+        return lo + 1
+    }
+
+    private func rebuildNewlineCacheIfNeeded(_ contents: NSString) {
+        let length = contents.length
+        // 用长度+hashValue 简单判断是否需要重建;hashValue 对超大字符串也是常数级摊销
+        let hash = (contents as String).hashValue
+        if length == cachedTextLength && hash == cachedTextHash {
+            return
+        }
+        var offsets: [Int] = []
+        offsets.reserveCapacity(max(16, length / 40))
+        let buffer = contents
+        for i in 0..<length {
+            if buffer.character(at: i) == 0x0A { // '\n'
+                offsets.append(i)
+            }
+        }
+        cachedNewlineOffsets = offsets
+        cachedTextLength = length
+        cachedTextHash = hash
+    }
+
 // No custom draw override to prevent layout interference
 
     override func drawHashMarksAndLabels(in rect: NSRect) {
@@ -26,12 +67,9 @@ class LineNumberRulerView: NSRulerView {
         let charRange = layoutManager.characterRange(forGlyphRange: textRange, actualGlyphRange: nil)
         
         let contents = (textView.string as NSString)
-        var lineCount = 1
-        
-        // Find starting line number
-        contents.enumerateSubstrings(in: NSRange(location: 0, length: charRange.location), options: [.byLines, .substringNotRequired]) { _, _, _, _ in
-            lineCount += 1
-        }
+        rebuildNewlineCacheIfNeeded(contents)
+        // 用缓存的换行偏移做二分,O(log N) 取代原来的 O(N) 枚举
+        var lineCount = lineNumber(forCharIndex: charRange.location)
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,

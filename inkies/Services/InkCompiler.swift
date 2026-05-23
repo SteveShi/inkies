@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 // MARK: - Compilation Cache
 actor CompilationCache {
@@ -49,8 +50,9 @@ actor CompilationCache {
     }
 
     private func hashString(_ string: String) -> String {
-        let data = Data(string.utf8)
-        return data.base64EncodedString()
+        // 使用 SHA256 摘要,避免把整篇文本再 base64 复制一份占用内存
+        let digest = SHA256.hash(data: Data(string.utf8))
+        return digest.map { String(format: "%02x", $0) }.joined()
     }
 
     private func updateAccessOrder(for hash: String) {
@@ -239,6 +241,27 @@ actor InkCompiler {
         process.standardOutput = outputPipe
         process.standardError = errorPipe
 
+        // 在后台异步累积管道数据,避免 4KB/16KB 管道缓冲区填满后 inklecate 阻塞写入
+        // 进而导致 terminationHandler 永远不会触发(经典的 Process+Pipe 死锁)。
+        let outputBuffer = PipeBuffer()
+        let errorBuffer = PipeBuffer()
+        outputPipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if data.isEmpty {
+                handle.readabilityHandler = nil
+            } else {
+                outputBuffer.append(data)
+            }
+        }
+        errorPipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if data.isEmpty {
+                handle.readabilityHandler = nil
+            } else {
+                errorBuffer.append(data)
+            }
+        }
+
         print("INKIES DEBUG: Starting compilation: \(compilerPath)")
 
         self.currentProcess = process
@@ -247,11 +270,11 @@ actor InkCompiler {
             try await withCheckedThrowingContinuation { continuation in
                 process.terminationHandler = { process in
                     let status = process.terminationStatus
-                    let outData = outputPipe.fileHandleForReading.readDataToEndOfFile()
-                    let errData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-                    
-                    let outStr = String(data: outData, encoding: .utf8) ?? ""
-                    let errStr = String(data: errData, encoding: .utf8) ?? ""
+                    // 确保所有数据被读取完毕(readabilityHandler 已在后台 drain)
+                    outputPipe.fileHandleForReading.readabilityHandler = nil
+                    errorPipe.fileHandleForReading.readabilityHandler = nil
+                    let outStr = String(data: outputBuffer.snapshot(), encoding: .utf8) ?? ""
+                    let errStr = String(data: errorBuffer.snapshot(), encoding: .utf8) ?? ""
                     let combinedOutput = outStr + "\n" + errStr
 
                     if status == 0 {
@@ -306,5 +329,25 @@ actor InkCompiler {
                 print("INKIES DEBUG: Compiling task canceled, terminated process")
             }
         }
+    }
+}
+
+// MARK: - Thread-safe Pipe Buffer
+// 显式标记 nonisolated,避免在 MainActor 默认隔离模式下被推断为主线程隔离。
+// 内部以 NSLock 保护数据,自身线程安全。
+private final class PipeBuffer: @unchecked Sendable {
+    nonisolated(unsafe) private var data = Data()
+    private let lock = NSLock()
+
+    nonisolated func append(_ chunk: Data) {
+        lock.lock()
+        data.append(chunk)
+        lock.unlock()
+    }
+
+    nonisolated func snapshot() -> Data {
+        lock.lock()
+        defer { lock.unlock() }
+        return data
     }
 }
