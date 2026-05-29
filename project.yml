@@ -46,11 +46,13 @@ targets:
       - path: inkies/Resources/Compiler/ink_compiler.dll
         buildPhase:
           copyFiles:
-            destination: executables
+            destination: resources
+            subpath: Compiler
       - path: inkies/Resources/Compiler/ink-engine-runtime.dll
         buildPhase:
           copyFiles:
-            destination: executables
+            destination: resources
+            subpath: Compiler
       - path: inkies/Resources/Scripts/ink.min.js
         buildPhase:
           copyFiles:

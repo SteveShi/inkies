@@ -197,13 +197,13 @@ actor InkCompiler {
             print("INKIES DEBUG: --- Compiler Diagnostics ---")
             if let compilerPath = findInklecate() {
                 let compilerURL = URL(fileURLWithPath: compilerPath)
-                let helperDir = compilerURL.deletingLastPathComponent()
+                let resourcesURL = Bundle.main.resourceURL?.appendingPathComponent("Compiler")
                 for dll in dlls {
-                    let exists = FileManager.default.fileExists(atPath: helperDir.appendingPathComponent(dll).path)
-                    print("INKIES DEBUG: \(dll) exists in Contents/Helpers: \(exists)")
+                    let exists = resourcesURL != nil && FileManager.default.fileExists(atPath: resourcesURL!.appendingPathComponent(dll).path)
+                    print("INKIES DEBUG: \(dll) exists in Resources/Compiler: \(exists)")
                 }
                 let inklecateExists = FileManager.default.fileExists(atPath: compilerURL.path)
-                print("INKIES DEBUG: inklecate exists in Contents/Helpers: \(inklecateExists)")
+                print("INKIES DEBUG: inklecate exists in Contents/MacOS: \(inklecateExists)")
                 if inklecateExists {
                     let isExec = FileManager.default.isExecutableFile(atPath: compilerURL.path)
                     print("INKIES DEBUG: inklecate is executable: \(isExec)")
@@ -249,8 +249,12 @@ actor InkCompiler {
         process.executableURL = compilerURL
         process.arguments = ["-o", tempJsonFile.path, tempInkFile.path]
 
-        // Set working directory to where inklecate is, so it finds DLLs
-        process.currentDirectoryURL = compilerURL.deletingLastPathComponent()
+        // Set working directory to Contents/Resources/Compiler where DLLs are located
+        if let resourcesURL = Bundle.main.resourceURL {
+            process.currentDirectoryURL = resourcesURL.appendingPathComponent("Compiler")
+        } else {
+            process.currentDirectoryURL = compilerURL.deletingLastPathComponent()
+        }
 
         let outputPipe = Pipe()
         let errorPipe = Pipe()
