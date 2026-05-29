@@ -1,5 +1,8 @@
 import Foundation
 import CryptoKit
+#if os(macOS)
+import Darwin
+#endif
 
 // MARK: - Compilation Cache
 actor CompilationCache {
@@ -76,10 +79,10 @@ actor InkCompiler {
     private var pendingCompilation: Task<String, Error>?
 
     func findInklecate() -> String? {
-        // Only use bundled compiler to avoid legacy fallback branches.
-        if let bundledPath = Bundle.main.path(forResource: "inklecate", ofType: nil, inDirectory: "Compiler") {
-            print("INKIES DEBUG: Found inklecate in Resources/Compiler: \(bundledPath)")
-            return verifiedPath(bundledPath)
+        // Find helper binary in Contents/Helpers using path(forAuxiliaryExecutable:)
+        if let helperPath = Bundle.main.path(forAuxiliaryExecutable: "inklecate") {
+            print("INKIES DEBUG: Found inklecate in Contents/Helpers: \(helperPath)")
+            return verifiedPath(helperPath)
         }
 
         print("INKIES DEBUG: ERROR - inklecate NOT found in any search location")
@@ -87,6 +90,19 @@ actor InkCompiler {
     }
 
     private func verifiedPath(_ path: String) -> String? {
+        #if os(macOS)
+        let cPath = (path as NSString).fileSystemRepresentation
+        let removeResult = removexattr(cPath, "com.apple.quarantine", 0)
+        if removeResult == 0 {
+            print("INKIES DEBUG: Successfully removed quarantine flag from \(path)")
+        } else {
+            let err = errno
+            if err != ENOATTR {
+                print("INKIES DEBUG: removexattr returned errno \(err) for \(path)")
+            }
+        }
+        #endif
+
         if FileManager.default.isExecutableFile(atPath: path) {
             return path
         }
@@ -179,21 +195,21 @@ actor InkCompiler {
             hasCheckedResources = true
             let dlls = ["ink_compiler.dll", "ink-engine-runtime.dll"]
             print("INKIES DEBUG: --- Compiler Diagnostics ---")
-            if let resPath = Bundle.main.resourcePath {
-                let resURL = URL(fileURLWithPath: resPath)
-                let compilerURL = resURL.appendingPathComponent("Compiler")
+            if let compilerPath = findInklecate() {
+                let compilerURL = URL(fileURLWithPath: compilerPath)
+                let helperDir = compilerURL.deletingLastPathComponent()
                 for dll in dlls {
-                    let exists = FileManager.default.fileExists(atPath: compilerURL.appendingPathComponent(dll).path)
-                    print("INKIES DEBUG: \(dll) exists in Resources/Compiler: \(exists)")
+                    let exists = FileManager.default.fileExists(atPath: helperDir.appendingPathComponent(dll).path)
+                    print("INKIES DEBUG: \(dll) exists in Contents/Helpers: \(exists)")
                 }
-                let inklecateExists = FileManager.default.fileExists(
-                    atPath: compilerURL.appendingPathComponent("inklecate").path)
-                print("INKIES DEBUG: inklecate exists in Compiler/: \(inklecateExists)")
+                let inklecateExists = FileManager.default.fileExists(atPath: compilerURL.path)
+                print("INKIES DEBUG: inklecate exists in Contents/Helpers: \(inklecateExists)")
                 if inklecateExists {
-                    let isExec = FileManager.default.isExecutableFile(
-                        atPath: compilerURL.appendingPathComponent("inklecate").path)
+                    let isExec = FileManager.default.isExecutableFile(atPath: compilerURL.path)
                     print("INKIES DEBUG: inklecate is executable: \(isExec)")
                 }
+            } else {
+                print("INKIES DEBUG: inklecate was not found by findInklecate()")
             }
         }
 

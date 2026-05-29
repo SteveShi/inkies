@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2026-05-30
+
+### Fixed
+- **Compiler Exec Format Error**: Resolved the `Exec format error` (POSIX error 8, `ENOEXEC`) on Apple Silicon by copying the `inklecate` compiler and DLL dependencies to the standard macOS `Contents/MacOS/` bundle directory and programmatically stripping Gatekeeper quarantine attributes.
+
+---
+
+### Chinese
+### 修复
+- **编译器执行格式错误**: 修复了 Apple Silicon 平台下的“执行格式错误”（Exec format error），通过将 `inklecate` 编译器及 DLL 依赖迁移至标准 `Contents/MacOS/` 目录，并在运行时自动清除系统 Quarantine 检疫标记以防止被 Gatekeeper 拦截。
+
 ## [1.0.2] - 2026-05-23
 
 ### Fixed
