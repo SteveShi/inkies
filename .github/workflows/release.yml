@@ -57,6 +57,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
+        with:
+          lfs: true
 
       - name: Prepare Environment
         run: |
