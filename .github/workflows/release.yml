@@ -104,7 +104,8 @@ jobs:
         run: |
           mkdir -p Build/Universal
           cp -R ./DerivedData/Build/Products/Release/inkies.app Build/Universal/
-          # Ad-hoc sign the app with Hardened Runtime options to ensure system features work correctly
+          # Sign the helper executable first, then sign the app bundle
+          codesign --force --sign - --options=runtime Build/Universal/inkies.app/Contents/MacOS/inklecate
           codesign --force --deep --sign - --options=runtime --entitlements inkies/inkies.entitlements Build/Universal/inkies.app
 
       - name: Split Architectures (x86_64 & arm64)
@@ -120,8 +121,11 @@ jobs:
           lipo -thin x86_64 Build/Universal/inkies.app/Contents/MacOS/inkies -output Build/x86_64/inkies.app/Contents/MacOS/inkies
           lipo -thin arm64 Build/Universal/inkies.app/Contents/MacOS/inkies -output Build/arm64/inkies.app/Contents/MacOS/inkies
           
-          # Re-sign thinned apps deeply with runtime options
+          # Re-sign thinned helper binaries and then app bundles
+          codesign --force --sign - --options=runtime Build/x86_64/inkies.app/Contents/MacOS/inklecate
           codesign --force --deep --sign - --options=runtime --entitlements inkies/inkies.entitlements Build/x86_64/inkies.app
+          
+          codesign --force --sign - --options=runtime Build/arm64/inkies.app/Contents/MacOS/inklecate
           codesign --force --deep --sign - --options=runtime --entitlements inkies/inkies.entitlements Build/arm64/inkies.app
 
       - name: Create DMGs and ZIPs
