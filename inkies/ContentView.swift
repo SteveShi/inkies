@@ -109,7 +109,7 @@ struct ContentView: View {
         {
             _ in
             manualWhatsNew = WhatsNew(
-                version: "0.7.0",
+                version: "1.1.0",
                 title: WhatsNew.Title(
                     text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
                 features: [
@@ -197,6 +197,8 @@ struct ContentView: View {
     @State private var debounceTask: Task<Void, Never>?
     @State private var compilationTask: Task<Void, Never>?
     @StateObject private var webViewHandler = WebViewActionHandler()
+    @State private var lastCompiledContent: String = ""
+    @AppStorage("isAutoRenderEnabled") private var isAutoRenderEnabled = true
 
     private var navigationSplitView: some View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
@@ -241,6 +243,27 @@ struct ContentView: View {
             .toolbar {
                 // Placing toolbar in detail makes macOS draw the separator between Editor and Preview
                 ToolbarItemGroup(placement: .primaryAction) {
+                    Button(action: {
+                        isAutoRenderEnabled.toggle()
+                    }) {
+                        Label(
+                            isAutoRenderEnabled ? String(localized: "Disable Auto Render") : String(localized: "Enable Auto Render"),
+                            systemImage: isAutoRenderEnabled ? "pause.circle" : "play.circle"
+                        )
+                    }
+                    .help(isAutoRenderEnabled ? String(localized: "Disable Auto Render") : String(localized: "Enable Auto Render"))
+                    .disabled(selection == nil)
+
+                    Button(action: {
+                        if let item = selection {
+                            compileContent(item.content)
+                        }
+                    }) {
+                        Label(String(localized: "Refresh Preview"), systemImage: "arrow.clockwise")
+                    }
+                    .help(String(localized: "Refresh Preview"))
+                    .disabled(selection == nil)
+
                     Button(action: { webViewHandler.undo() }) {
                         Label(String(localized: "Undo"), systemImage: "arrow.uturn.backward")
                     }
@@ -267,6 +290,25 @@ struct ContentView: View {
             } else {
                 previewContent = ""
                 inkIssues = []
+                lastCompiledContent = ""
+            }
+        }
+        .onChange(of: isAutoRenderEnabled) { oldValue, newValue in
+            if newValue, let item = selection {
+                compileContent(item.content)
+            }
+        }
+        .onChange(of: selection?.content) { oldValue, newValue in
+            guard isAutoRenderEnabled else { return }
+            guard let content = newValue else { return }
+            if content != lastCompiledContent {
+                debounceTask?.cancel()
+                debounceTask = Task {
+                    try? await Task.sleep(for: .milliseconds(300))
+                    if !Task.isCancelled {
+                        compileContent(content)
+                    }
+                }
             }
         }
     }
@@ -471,6 +513,7 @@ struct ContentView: View {
     }
 
     private func compileContent(_ content: String) {
+        lastCompiledContent = content
         compilationTask?.cancel()
         compilationTask = Task {
             do {

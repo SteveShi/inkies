@@ -1,6 +1,36 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Disable Auto Render" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭自动渲染"
+          }
+        }
+      }
+    },
+    "Enable Auto Render" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启自动渲染"
+          }
+        }
+      }
+    },
+    "Refresh Preview" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刷新预览"
+          }
+        }
+      }
+    },
     "%@: %lld\n%@: %lld\n%@: %lld\n%@: %lld" : {
       "localizations" : {
         "en" : {

@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-05-30
+
+### Added
+- **Preview Autorender Controls**: Added play/pause toggle (`pause.circle` / `play.circle`) to the preview toolbar to enable or disable automatic live compilation.
+- **Manual Refresh**: Added a refresh button (`arrow.clockwise`) to allow manual recompilation when automatic rendering is disabled.
+
+### Fixed
+- **Live Preview Updating**: Resolved an issue where the preview rendering window failed to update in real-time when editing or deleting content in the editor.
+
+---
+
+### Chinese
+### 新功能
+- **预览自动渲染控制**: 在预览工具栏中增加了播放/暂停开关（`pause.circle` / `play.circle`），用于开启或关闭自动实时编译。
+- **手动刷新**: 增加了刷新按钮（`arrow.clockwise`），允许在自动渲染关闭时进行手动编译更新。
+
+### 修复
+- **实时预览更新**: 修复了在左侧编辑器中修改或删除内容时，右侧预览渲染窗口无法实时跟随变动的问题。
+
 ## [1.0.3] - 2026-05-30
 
 ### Fixed
