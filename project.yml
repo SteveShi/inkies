@@ -2,9 +2,6 @@ name: inkies
 options:
   bundleIdPrefix: listentotherain
 packages:
-  WhatsNewKit:
-    url: https://github.com/SvenTiigi/WhatsNewKit
-    from: 2.2.1
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
     from: 2.0.0
@@ -68,7 +65,6 @@ targets:
       - path: inkies/Resources/InkIcon.icns
         buildPhase: resources
     dependencies:
-      - package: WhatsNewKit
       - package: Sparkle
         product: Sparkle
     settings:

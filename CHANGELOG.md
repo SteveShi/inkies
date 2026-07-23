@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-07-23
+
+### Changed
+- **WhatsNew Migration**: Replaced third-party `WhatsNewKit` dependency with a clean native SwiftUI `WhatsNewSheetView`.
+- **Codebase Optimization**: Audited and removed legacy debug logging, unneeded cache strings, dead state properties (`isExporting`, `tagsVisible`), and unused placeholder menu items/alerts (`Add watch expression`).
+- **File System Resolution**: Streamlined example snippet resource resolution paths.
+
+---
+
+### Chinese
+### 变更
+- **WhatsNew 原生化迁移**: 移除第三方 `WhatsNewKit` 依赖，替换为零依赖的原生 SwiftUI `WhatsNewSheetView` 弹窗。
+- **代码库重构优化**: 审计并清理了遗留调试日志、冗余编译缓存文本、死状态属性（`isExporting`、`tagsVisible`）及未实现的菜单项/弹窗（`Add watch expression`）。
+- **资源查找优化**: 简化内置 Ink 示例代码文件的加载路径逻辑。
+
 ## [1.1.0] - 2026-05-30
 
 ### Added

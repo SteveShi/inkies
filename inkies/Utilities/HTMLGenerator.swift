@@ -6,18 +6,12 @@ import Foundation
 func getInkScript() -> String {
     if let path = Bundle.main.path(forResource: "ink.min", ofType: "js", inDirectory: "Scripts") {
         if let content = try? String(contentsOfFile: path, encoding: .utf8) {
-            print("INKIES DEBUG: local ink.min.js loaded successfully (\(content.count) bytes)")
-            return
-                "<script>/* InkJS included from Bundle (\(content.count) bytes) */\n\(content)</script>"
+            return "<script>\(content)</script>"
         } else {
-            print("INKIES DEBUG: ERROR - local ink.min.js found but failed to read")
-            return
-                "<script>console.error('INKIES DEBUG: local ink.min.js found but failed to read');</script>"
+            return "<script>console.error('local ink.min.js found but failed to read');</script>"
         }
     }
-    print("INKIES DEBUG: ERROR - local ink.min.js NOT found in bundle")
-    return
-        "<script>console.error('INKIES DEBUG: local ink.min.js NOT found in bundle');</script>"
+    return "<script>console.error('local ink.min.js NOT found in bundle');</script>"
 }
 
 func generateHTML(for inkContext: String, theme: AppTheme) -> String {

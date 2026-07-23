@@ -2,14 +2,14 @@ import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 import WebKit
-import WhatsNewKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Item.timestamp, order: .reverse) private var items: [Item]
 
     // WhatsNew State
-    @State private var manualWhatsNew: WhatsNew?
+    @State private var showingWhatsNew = false
+    @AppStorage("lastSeenWhatsNewVersion") private var lastSeenVersion: String = ""
 
     private var filteredItems: [Item] {
         if searchText.isEmpty {
@@ -35,13 +35,9 @@ struct ContentView: View {
     @State private var exportDocument: InkExportDocument?
     @State private var showingExportError = false
     @State private var exportErrorMessage = ""
-    @State private var isExporting = false
 
     @AppStorage("appTheme") private var appTheme: AppTheme = .light
     @State private var showingWordCount = false
-    @State private var showingWatchExpression = false
-    @State private var watchExpression = ""
-    @State private var tagsVisible = true
     @State private var wordCountStats: (words: Int, characters: Int, lines: Int, knots: Int) = (
         0, 0, 0, 0
     )
@@ -58,36 +54,19 @@ struct ContentView: View {
             try? modelContext.save()
         }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SearchItems")))
-        {
-            _ in
+        { _ in
             withAnimation {
                 isSearchMode = true
                 isSearchFieldFocused = true
             }
         }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("GotoAnything")))
-        {
-            _ in
+        { _ in
             withAnimation {
                 isSearchMode = true
                 isSearchFieldFocused = true
             }
         }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("NextIssue"))) {
-                _ in
-                if let item = selection {
-                    Task { await refreshPreview(for: item) }
-                }
-            }
-            .onReceive(
-                NotificationCenter.default.publisher(for: Notification.Name("AddWatchExpression"))
-            ) { _ in
-                showingWatchExpression = true
-            }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ToggleTags"))) {
-                _ in
-                tagsVisible.toggle()
-            }
             .onReceive(
                 NotificationCenter.default.publisher(for: Notification.Name("ShowWordCount"))
             ) {
@@ -106,46 +85,18 @@ struct ContentView: View {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ShowWhatsNew")))
-        {
-            _ in
-            manualWhatsNew = WhatsNew(
-                version: "1.1.0",
-                title: WhatsNew.Title(
-                    text: WhatsNew.Text(String(localized: "What's New in Inkies"))),
-                features: [
-                    .init(
-                        image: .init(systemName: "exclamationmark.triangle"),
-                        title: WhatsNew.Text(String(localized: "Syntax Checking")),
-                        subtitle: WhatsNew.Text(
-                            String(
-                                localized:
-                                    "Real-time Ink syntax validation with visual error and warning markers."))
-                    ),
-                    .init(
-                        image: .init(systemName: "list.number"),
-                        title: WhatsNew.Text(String(localized: "Refined Ruler")),
-                        subtitle: WhatsNew.Text(
-                            String(
-                                localized:
-                                    "Clean, minimalist line number display for improved focus and readability."
-                            ))
-                    ),
-                    .init(
-                        image: .init(systemName: "checkmark.circle"),
-                        title: WhatsNew.Text(String(localized: "Stability Fixes")),
-                        subtitle: WhatsNew.Text(
-                            String(
-                                localized:
-                                    "Resolved rendering issues and improved document deletion behavior."))
-                    )
-                ],
-                primaryAction: .init(
-                    title: WhatsNew.Text(String(localized: "Continue"))
-                )
-            )
+        { _ in
+            showingWhatsNew = true
         }
-            .sheet(item: $manualWhatsNew) { whatsNew in
-                WhatsNewView(whatsNew: whatsNew)
+            .onAppear {
+                let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+                if lastSeenVersion != currentVersion {
+                    lastSeenVersion = currentVersion
+                    showingWhatsNew = true
+                }
+            }
+            .sheet(isPresented: $showingWhatsNew) {
+                WhatsNewSheetView()
             }
             .fileExporter(
                 isPresented: $showingExport,
@@ -177,17 +128,6 @@ struct ContentView: View {
                     \(String(localized: "Lines")): \(wordCountStats.lines)
                     \(String(localized: "Knots")): \(wordCountStats.knots)
                     """)
-            }
-            .alert(String(localized: "Add Watch Expression"), isPresented: $showingWatchExpression)
-        {
-            TextField(String(localized: "Enter variable name to watch"), text: $watchExpression)
-            Button(String(localized: "OK")) {
-                    // In full implementation, this would add to a watch list
-                    watchExpression = ""
-                }
-            Button(String(localized: "Cancel"), role: .cancel) {
-                    watchExpression = ""
-                }
             }
     }
 
@@ -424,7 +364,6 @@ struct ContentView: View {
     }
 
     private func prepareExportJson(_ item: Item) async {
-        isExporting = true
         do {
             let json = try await InkCompiler.shared.compile(item.content)
             exportType = .json
@@ -436,11 +375,9 @@ struct ContentView: View {
                 "\(String(localized: "Compiler Error: inklecate might be missing."))\n\(error.localizedDescription)"
             showingExportError = true
         }
-        isExporting = false
     }
 
     private func prepareExportWeb(_ item: Item) async {
-        isExporting = true
         do {
             let json = try await InkCompiler.shared.compile(item.content)
             // Generate full HTML
@@ -454,7 +391,6 @@ struct ContentView: View {
                 "\(String(localized: "Compiler Error: inklecate might be missing."))\n\(error.localizedDescription)"
             showingExportError = true
         }
-        isExporting = false
     }
 
     private func handleExportResult(_ result: Result<URL, Error>) {
@@ -571,12 +507,6 @@ struct ContentView: View {
             ) ?? 0
 
         return (words, characters, lines, knotMatches)
-    }
-
-    private func refreshPreview(for item: Item) async {
-        // This triggers a recompilation by slightly modifying and restoring content
-        // In a full implementation, this would navigate to the next compiler error
-        _ = try? await InkCompiler.shared.compile(item.content)
     }
 }
 

@@ -30,6 +30,7 @@ Package.resolved
 .vscode/
 .idea/
 .trae/
+.claude/
 
 # Environment variables
 .env

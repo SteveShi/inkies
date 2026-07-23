@@ -16,22 +16,11 @@ struct InkSnippet {
     }
 
     static func fromFile(name: String, filename: String) -> InkSnippet {
-        // Search more broadly for the resource
-        let possibleUrls = [
-            Bundle.main.url(forResource: filename, withExtension: "ink", subdirectory: "Examples"),
-            Bundle.main.url(forResource: filename, withExtension: "ink"),
-            Bundle.main.url(forResource: "Resources/Examples/\(filename)", withExtension: "ink"),
-            Bundle.main.url(forResource: "Examples/\(filename)", withExtension: "ink")
-        ]
-        
-        let url = possibleUrls.compactMap { $0 }.first
-
-        if let url = url, let content = try? String(contentsOf: url, encoding: .utf8) {
+        if let url = Bundle.main.url(forResource: filename, withExtension: "ink", subdirectory: "Examples"),
+           let content = try? String(contentsOf: url, encoding: .utf8) {
             return InkSnippet(name: name, ink: content)
         }
-        
-        print("INKIES DEBUG: Failed to load snippet file: \(filename).ink")
-        return InkSnippet(name: name, ink: "// Error: Could not load \(filename).ink from bundle. Please check if the file is included in the project resources.")
+        return InkSnippet(name: name, ink: "// Error: Could not load \(filename).ink from bundle.")
     }
 }
 

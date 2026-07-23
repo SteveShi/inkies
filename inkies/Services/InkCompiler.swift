@@ -13,7 +13,6 @@ actor CompilationCache {
     private var accessOrder: [String] = []
 
     struct CacheEntry {
-        let inkCode: String
         let compiledResult: String
         let timestamp: Date
         let hash: String
@@ -22,7 +21,7 @@ actor CompilationCache {
     func getCachedResult(for inkCode: String) -> String? {
         let codeHash = hashString(inkCode)
 
-        if let entry = cache[codeHash], entry.inkCode == inkCode {
+        if let entry = cache[codeHash] {
             updateAccessOrder(for: codeHash)
             return entry.compiledResult
         }
@@ -37,7 +36,6 @@ actor CompilationCache {
         }
 
         let entry = CacheEntry(
-            inkCode: inkCode,
             compiledResult: compiledResult,
             timestamp: Date(),
             hash: codeHash
@@ -74,48 +72,32 @@ actor CompilationCache {
 actor InkCompiler {
     static let shared = InkCompiler()
     private var currentProcess: Process?
-    private var hasCheckedResources = false
 
     private var pendingCompilation: Task<String, Error>?
 
     func findInklecate() -> String? {
         // Find helper binary in Contents/Helpers using path(forAuxiliaryExecutable:)
         if let helperPath = Bundle.main.path(forAuxiliaryExecutable: "inklecate") {
-            print("INKIES DEBUG: Found inklecate in Contents/Helpers: \(helperPath)")
             return verifiedPath(helperPath)
         }
-
-        print("INKIES DEBUG: ERROR - inklecate NOT found in any search location")
         return nil
     }
 
     private func verifiedPath(_ path: String) -> String? {
         #if os(macOS)
         let cPath = (path as NSString).fileSystemRepresentation
-        let removeResult = removexattr(cPath, "com.apple.quarantine", 0)
-        if removeResult == 0 {
-            print("INKIES DEBUG: Successfully removed quarantine flag from \(path)")
-        } else {
-            let err = errno
-            if err != ENOATTR {
-                print("INKIES DEBUG: removexattr returned errno \(err) for \(path)")
-            }
-        }
+        _ = removexattr(cPath, "com.apple.quarantine", 0)
         #endif
 
         if FileManager.default.isExecutableFile(atPath: path) {
             return path
         }
-        print("INKIES DEBUG: WARNING - inklecate found at \(path) but is NOT executable")
         // Try to fix permissions if we are not sandboxed
         let attr = [FileAttributeKey.posixPermissions: 0o755]
         do {
             try FileManager.default.setAttributes(attr, ofItemAtPath: path)
-            print("INKIES DEBUG: Successfully set executable permission on \(path)")
             return path
         } catch {
-            print("INKIES DEBUG: ERROR - Failed to set executable permission on \(path): \(error)")
-            // Return it anyway, maybe process.run() will give a better error
             return path
         }
     }
@@ -190,37 +172,12 @@ actor InkCompiler {
     }
 
     private func performCompilation(_ inkCode: String, captureIssuesOnly: Bool = false) async throws -> String {
-        // 0. Build diagnostics (only once)
-        if !hasCheckedResources {
-            hasCheckedResources = true
-            let dlls = ["ink_compiler.dll", "ink-engine-runtime.dll"]
-            print("INKIES DEBUG: --- Compiler Diagnostics ---")
-            if let compilerPath = findInklecate() {
-                let compilerURL = URL(fileURLWithPath: compilerPath)
-                let resourcesURL = Bundle.main.resourceURL?.appendingPathComponent("Compiler")
-                for dll in dlls {
-                    let exists = resourcesURL != nil && FileManager.default.fileExists(atPath: resourcesURL!.appendingPathComponent(dll).path)
-                    print("INKIES DEBUG: \(dll) exists in Resources/Compiler: \(exists)")
-                }
-                let inklecateExists = FileManager.default.fileExists(atPath: compilerURL.path)
-                print("INKIES DEBUG: inklecate exists in Contents/MacOS: \(inklecateExists)")
-                if inklecateExists {
-                    let isExec = FileManager.default.isExecutableFile(atPath: compilerURL.path)
-                    print("INKIES DEBUG: inklecate is executable: \(isExec)")
-                }
-            } else {
-                print("INKIES DEBUG: inklecate was not found by findInklecate()")
-            }
-        }
-
         // Interrupt any existing process
         if let existing = currentProcess, existing.isRunning {
             existing.terminate()
-            print("INKIES DEBUG: Terminated previous compilation process")
         }
 
         guard let compilerPath = findInklecate() else {
-            print("INKIES DEBUG: ERROR - compiler path not found")
             throw NSError(
                 domain: "InkCompiler", code: 404,
                 userInfo: [NSLocalizedDescriptionKey: "inklecate compiler not found in bundle."])
@@ -282,8 +239,6 @@ actor InkCompiler {
             }
         }
 
-        print("INKIES DEBUG: Starting compilation: \(compilerPath)")
-
         self.currentProcess = process
 
         return try await withTaskCancellationHandler {
@@ -338,15 +293,12 @@ actor InkCompiler {
                 do {
                     try process.run()
                 } catch {
-                    print(
-                        "INKIES DEBUG: ERROR - failed to run process: \(error.localizedDescription)")
                     continuation.resume(throwing: error)
                 }
             }
         } onCancel: {
             if process.isRunning {
                 process.terminate()
-                print("INKIES DEBUG: Compiling task canceled, terminated process")
             }
         }
     }
