@@ -1388,6 +1388,46 @@
           }
         }
       }
+    },
+    "Native WhatsNew Sheet" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原生 WhatsNew 弹窗"
+          }
+        }
+      }
+    },
+    "Fully localized native SwiftUI release notes view." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完全本地化的原生 SwiftUI 新特性展示视图。"
+          }
+        }
+      }
+    },
+    "Codebase Optimization" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "代码库优化"
+          }
+        }
+      }
+    },
+    "Cleaned up debug log overhead, redundant memory allocations, and inactive options." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清理了调试日志开销、冗余内存分配及未启用的选项。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

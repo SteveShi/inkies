@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2026-07-23
+
+### Fixed
+- **WhatsNew Sheet Localization**: Configured `WhatsNewSheetView` to strictly resolve user-facing release notes from `Localizable.xcstrings` according to system/app language settings.
+
+---
+
+### Chinese
+### 修复
+- **WhatsNew 弹窗多语言适配**: 修复 `WhatsNewSheetView` 的多语言显示，确保新特性更新弹窗严格依据系统/应用语言设置从 `Localizable.xcstrings` 动态加载对应语种。
+
 ## [1.1.1] - 2026-07-23
 
 ### Changed

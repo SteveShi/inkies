@@ -56,7 +56,7 @@ struct WhatsNewSheetView: View {
     @ViewBuilder
     private func headerView(for item: WhatsNewItem) -> some View {
         VStack(spacing: 8) {
-            Text(String(localized: String.LocalizationValue(item.title)))
+            Text(LocalizedStringKey(item.title))
                 .font(.system(size: 26, weight: .bold))
                 .multilineTextAlignment(.center)
             
@@ -82,10 +82,10 @@ struct WhatsNewSheetView: View {
                         .frame(width: 32, height: 32)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: String.LocalizationValue(feature.title)))
+                        Text(LocalizedStringKey(feature.title))
                             .font(.headline)
 
-                        Text(String(localized: String.LocalizationValue(feature.subtitle)))
+                        Text(LocalizedStringKey(feature.subtitle))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -97,13 +97,13 @@ struct WhatsNewSheetView: View {
 
     static let defaultItems: [WhatsNewItem] = [
         WhatsNewItem(
-            version: "1.1.1",
+            version: "1.1.2",
             title: "What's New in Inkies",
             features: [
                 .init(
-                    imageSystemName: "sparkles",
-                    title: "Native SwiftUI Sheets",
-                    subtitle: "Migrated release highlights to a clean, lightweight native SwiftUI component."
+                    imageSystemName: "globe",
+                    title: "Native WhatsNew Sheet",
+                    subtitle: "Fully localized native SwiftUI release notes view."
                 ),
                 .init(
                     imageSystemName: "bolt.fill",
