@@ -15,10 +15,9 @@ func getInkScript() -> String {
 }
 
 func generateHTML(for inkContext: String, theme: AppTheme) -> String {
-    let safeContent = inkContext.replacingOccurrences(of: "\\", with: "\\\\")
-        .replacingOccurrences(of: "\"", with: "\\\"")
-        .replacingOccurrences(of: "\n", with: "\\n")
-        .replacingOccurrences(of: "\r", with: "")
+    // 安全转义字符串，避免换行符、引号或 HTML 特殊字符破坏 JS 语法
+    let safeContentData = (try? JSONSerialization.data(withJSONObject: [inkContext])) ?? Data()
+    let safeContentArrayStr = String(data: safeContentData, encoding: .utf8) ?? "[\"\"]"
 
     let inkScriptTag = getInkScript()
 
@@ -132,7 +131,7 @@ func generateHTML(for inkContext: String, theme: AppTheme) -> String {
 
             <script>
                 (function() {
-                    var storyContent = "\(safeContent)";
+                    var storyContent = (\(safeContentArrayStr))[0];
                     var story = null;
                     var storyContainer = document.getElementById('story');
                     

@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2026-07-24
+
+### Fixed
+- **Compiler Process Race & UI Resilience**: Resolved process cancellation interference between main compiler and line-ruler syntax issue analyzer.
+- **Preview Rendering Integrity**: Prevented temporary mid-typing compilation errors (e.g., incomplete symbols or missing variables) from clearing previously rendered story content in the WebView.
+- **HTML String Escaping**: Wrapped preview string injections in safe JSON array serialization to eliminate JavaScript parsing exceptions caused by multiline error traces.
+
+---
+
+### Chinese
+### 修复
+- **编译器进程死锁与渲染鲁棒性**: 修复主编译任务与语法分析任务并发执行时的进程抢占打断问题。
+- **预览渲染稳定性**: 修复在输入编辑未完成代码（如未闭合变量/跨文件引用）导致临时编译报错时预览画面被抹白重置的问题；渲染器现会保持原有故事界面，并将报错精细定位展示于左侧行号标尺。
+- **HTML 字符串安全转义**: 采用安全的 JSON 数组序列化转义，杜绝带换行符的错误栈破坏 WebView JS 脚本语法。
+
 ## [1.1.2] - 2026-07-23
 
 ### Fixed

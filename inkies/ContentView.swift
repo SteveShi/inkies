@@ -463,7 +463,9 @@ struct ContentView: View {
                     }
                 }
             } catch {
-                if !Task.isCancelled {
+                // 如果发生临时打字/语法编译错误，保留原先成功渲染的预览画面，
+                // 避免在打字未完成时画面瞬间变成空白或跳错，错误标记会精确展示在左侧行号标尺上
+                if !Task.isCancelled && previewContent.isEmpty {
                     await MainActor.run {
                         self.previewContent = "COMPILER_ERROR: \(error.localizedDescription)"
                     }

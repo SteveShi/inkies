@@ -172,9 +172,11 @@ actor InkCompiler {
     }
 
     private func performCompilation(_ inkCode: String, captureIssuesOnly: Bool = false) async throws -> String {
-        // Interrupt any existing process
-        if let existing = currentProcess, existing.isRunning {
-            existing.terminate()
+        // 只有主编译任务才打断上一次未完成的主编译进程；语法分析不干扰主编译进程
+        if !captureIssuesOnly {
+            if let existing = currentProcess, existing.isRunning {
+                existing.terminate()
+            }
         }
 
         guard let compilerPath = findInklecate() else {
@@ -218,8 +220,6 @@ actor InkCompiler {
         process.standardOutput = outputPipe
         process.standardError = errorPipe
 
-        // 在后台异步累积管道数据,避免 4KB/16KB 管道缓冲区填满后 inklecate 阻塞写入
-        // 进而导致 terminationHandler 永远不会触发(经典的 Process+Pipe 死锁)。
         let outputBuffer = PipeBuffer()
         let errorBuffer = PipeBuffer()
         outputPipe.fileHandleForReading.readabilityHandler = { handle in
@@ -239,7 +239,9 @@ actor InkCompiler {
             }
         }
 
-        self.currentProcess = process
+        if !captureIssuesOnly {
+            self.currentProcess = process
+        }
 
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in

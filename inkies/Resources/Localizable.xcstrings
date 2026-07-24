@@ -1428,6 +1428,26 @@
           }
         }
       }
+    },
+    "Compiler & Preview Resilience" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编译器与预览鲁棒性提升"
+          }
+        }
+      }
+    },
+    "Fixed preview resetting when typing incomplete syntax or cross-file references." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "修复了输入未完成语法或跨文件引用时预览被重置抹白的问题。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
