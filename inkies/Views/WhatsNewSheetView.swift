@@ -97,6 +97,17 @@ struct WhatsNewSheetView: View {
 
     static let defaultItems: [WhatsNewItem] = [
         WhatsNewItem(
+            version: "1.1.4",
+            title: "What's New in Inkies",
+            features: [
+                .init(
+                    imageSystemName: "doc.richtext",
+                    title: "Official Inky Specification",
+                    subtitle: "Supported official # CLEAR, # TITLE:, # CLASS: tags and smooth auto-scrolling."
+                )
+            ]
+        ),
+        WhatsNewItem(
             version: "1.1.3",
             title: "What's New in Inkies",
             features: [

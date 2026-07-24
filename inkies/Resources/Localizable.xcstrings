@@ -1448,6 +1448,26 @@
           }
         }
       }
+    },
+    "Official Inky Specification" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "官方 Inky 渲染规范全量对齐"
+          }
+        }
+      }
+    },
+    "Supported official # CLEAR, # TITLE:, # CLASS: tags and smooth auto-scrolling." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支持官方 # CLEAR、# TITLE:、# CLASS: 标签以及平滑自动滚动。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

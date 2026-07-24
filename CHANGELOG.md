@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.4] - 2026-07-24
+
+### Added
+- **Official Inky Rendering Alignment**: Strictly aligned HTML preview renderer with official inkle Inky template specifications:
+  - Supported official `# CLEAR` tag to clear story history container on demand.
+  - Supported `# TITLE:` tag to render top-level article heading elements.
+  - Supported official `# CLASS:` tags and helper classes (`.italic`, `.bold`, `.centered`, `.right`, `.large`, `.small`, `.hide`).
+  - Enabled smooth auto-scrolling (`scrollIntoView`) upon story advancement and choice selection.
+
+---
+
+### Chinese
+### 新增
+- **官方 Inky 渲染规范完全对齐**: 严格按照 inkle 官方 Inky 渲染模板标准升级 HTML 渲染引擎：
+  - 支持官方 `# CLEAR` 标签，按需擦除重置当前故事历史视图。
+  - 支持官方 `# TITLE:` 标签，自动解析生成标准文章大标题。
+  - 完整支持官方 `# CLASS:` 辅助类（`.italic`, `.bold`, `.centered`, `.right`, `.large`, `.small`, `.hide`）。
+  - 新增故事推进与选项点击后的平滑自动滚动效果（`scrollIntoView`）。
+
 ## [1.1.3] - 2026-07-24
 
 ### Fixed
